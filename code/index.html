@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Final Project</title>
+	<script type="text/javascript" src="./d3.js"></script>
+	<link rel="stylesheet" href="styles.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+	<div id="container" class="container">
+		<div class="card">
+			<div id="chart" class="chartDiv"></div>
+			<div id="button" class="buttonDiv"></div>
+			<!-- <div id="map"></div> -->
+			<table style="width: 100%">
+				<tr>
+					<td style="width: 50%">
+						<div id="map" />
+					</td>
+					<td style="width: 50%">
+						<div id="barChart" />
+					</td>
+				</tr>
+			</table>
+			<script type="text/javascript">
+
+				//Global height
+				var h = 400;
+				var h_chart = 200;
+				var padding = 30;
+
+				var setupMap = function () {
+					//Create SVG element
+					var mapDiv = document.getElementById("map");
+					var svg_map = d3.select(mapDiv).append("svg");
+					var w_map = mapDiv.clientWidth;
+					svg_map.attr("width", w_map).attr("height", h);
+
+					// Define map projection
+					var projection = d3.geoMercator()
+						.scale(300000)
+						.center([144.96, -37.82])
+						.translate([w_map / 2, h / 2]);
+
+					// Define path generator
+					var path = d3.geoPath()
+						.projection(projection);
+
+					//Define quantize scale to sort data values into buckets of color
+					var color = d3.scaleQuantize()
+						.domain([0, 4])
+						.range(["rgb(237,248,233)", "rgb(186,228,179)", "rgb(116,196,118)", "rgb(49,163,84)", "rgb(0,109,44)"]);
+					//Colors taken from colorbrewer.js, included in the D3 download
+
+					return { projection, path, color, svg_map, w_map }
+				}
+
+				// var setupTimeline = function () {
+				// 	//Create SVG element
+				// 	var chartDiv = document.getElementById("chart");
+				// 	var svg_timeline = d3.select(chartDiv).append("svg");
+				// 	var w_chart = chartDiv.clientWidth;
+				// 	svg_timeline.attr("width", w_chart).attr("height", h_chart);
+
+				// 	//For converting Dates to strings
+				// 	var formatTime = d3.timeFormat("%Y");
+
+				// 	//Function for converting CSV values from strings to Dates and numbers
+				// 	var rowConverter = function (d) {
+				// 		return {
+				// 			index: parseFloat(d.INDEX),
+				// 			date: new Date(d.RPT_DT),  //Make a new Date object
+				// 			hour: parseFloat(d.CMPLNT_FR_TM),
+				// 			lat: parseFloat(d.Latitude),  //Convert from string to float
+				// 			lon: parseFloat(d.Longitude)
+				// 		};
+				// 	}
+
+				// 	//Create scale functions, domain for y-scale will be set up later when the data is available
+				// 	var xScale = d3.scaleTime()
+				// 		.range([padding, w_chart - padding * 2])
+
+				// 	var yScale = d3.scaleLinear()
+				// 		.range([h_chart - padding, padding]);
+
+				// 	//Define X axis
+				// 	var xAxis = d3.axisBottom()
+				// 		.scale(xScale)
+				// 		.ticks(10)
+				// 		.tickFormat(formatTime);
+
+				// 	//Define Y axis
+				// 	var yAxis = d3.axisLeft()
+				// 		.scale(yScale)
+				// 		.ticks(10);
+
+				// 	//Create X axis
+				// 	svg_timeline.append("g")
+				// 		.attr("class", "x axis")
+				// 		.attr("transform", "translate(0," + (h_chart - padding) + ")")
+				// 		.call(xAxis);
+
+				// 	//Create Y axis
+				// 	svg_timeline.append("g")
+				// 		.attr("class", "y axis")
+				// 		.attr("transform", "translate(" + padding + ",0)")
+				// 		.call(yAxis);
+
+				// 	// now add titles to the axes
+				// 	svg_timeline.append("text")
+				// 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+				// 		.attr("transform", "translate(" + (padding / 3) + "," + (h_chart / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+				// 		.text("# of murders");
+
+				// 	svg_timeline.append("text")
+				// 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+				// 		.attr("transform", "translate(" + (w_chart / 2) + "," + (h_chart) + ")")  // centre below axis
+				// 		.text("Year");
+
+				// 	// now add titles to the graph
+				// 	svg_timeline.append("text")
+				// 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+				// 		.attr("transform", "translate(" + (w_chart / 2) + "," + (padding / 2) + ")")  // text is drawn off the screen top left, move down and out and rotate
+				// 		.text("NYC Crimes");
+
+				// 	function drawTimeline(data) {
+				// 		//Calibrate the scale domain, given the max value in dataset
+				// 		xScale.domain([
+				// 			d3.min(data, function (d) { return new Date(d.key); }),
+				// 			d3.max(data, function (d) { return new Date(d.key); })
+				// 		]);
+
+				// 		yScale.domain([0, d3.max(data, function (d) { return d.values.length; })]);
+
+				// 		//Define line generator
+				// 		line = d3.line()
+				// 			.x(function (d) { return xScale(new Date(d.key)); })
+				// 			.y(function (d) { return yScale(d.values.length); });
+
+				// 		svg_timeline.append("path")
+				// 			.datum(data)
+				// 			.attr("class", "line")
+				// 			.attr("d", line);
+
+				// 		//Update X axis
+				// 		svg_timeline.select(".x.axis")
+				// 			.transition()
+				// 			.duration(500)
+				// 			.call(xAxis);
+
+				// 		//Update Y axis
+				// 		svg_timeline.select(".y.axis")
+				// 			.transition()
+				// 			.duration(500)
+				// 			.call(yAxis);
+				// 	};
+
+				// 	return { xScale, rowConverter, svg_timeline, drawTimeline }
+				// }
+
+				var { projection, path, color, svg_map, w_map } = setupMap();
+				// var { xScale, rowConverter, svg_timeline, drawTimeline } = setupTimeline();
+
+				//Load in GeoJSON data
+				d3.json("melbourne.geojson", function (json) {
+
+					//Bind data and create one path per GeoJSON feature
+					svg_map.selectAll("path")
+						.data(json.features)
+						.enter()
+						.append("path")
+						.attr("d", path)
+						.style("fill", function (d, i) {
+							return 'lightgrey';
+						})
+						.attr("stroke", "black")
+						.attr("stroke-width", 0.9);
+
+					// //Create one label per state
+					// svg_map.selectAll("text")
+					// 	.data(json.features)
+					// 	.enter()
+					// 	.append("text")
+					// 	.attr("class", "label")
+					// 	.attr("x", function (d) {
+					// 		return path.centroid(d)[0];
+					// 	})
+					// 	.attr("y", function (d) {
+					// 		return path.centroid(d)[1];
+					// 	})
+					// 	.text(function (d) {
+					// 		if (d.properties.name) {
+					// 			return d.properties.name;
+					// 		}
+					// 	});
+
+					d3.csv("Pedestrian_sensor_locations.csv", function (data) {
+
+						// add circles to map
+						var circles = svg_map
+							.append("g")
+							.selectAll("circle")
+							.data(data)
+							.enter()
+							.append("circle")
+							.attr("cx", function (d) {
+								return projection([d.lon, d.lat])[0];
+							})
+							.attr("cy", function (d) {
+								return projection([d.lon, d.lat])[1];
+							})
+							.attr("r", 3)
+							.attr("class", "show")
+							.style("fill", "red");
+
+					});
+				});
+
+			</script>
+		</div>
+	</div>
+</body>
+
+</html>
