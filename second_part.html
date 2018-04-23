@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Second part</title>
+  <link rel="stylesheet" href="./second_part.css">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+  <h1>Is it different on holidays?</h1>
+  <p>To figure out, instead of the parking places, we analysed the frequency of people leaving parking places. This correlates well with the pedestrian data since both of them are indications of people moving. Here is what we discovered by taking a look at year 2017.</p>
+  <script>
+			// selectedIndex contains the selected holiday's index, as they have been added to the rectangles array.
+			const ORANGE = "#EF7F1A";
+			const BLACK = "#2B2A29";
+			const GREY = "#C0C0C0";
+			const DARK_GREY = "#404040";
+			const LIGHT_GREY = "#EBEBEB";
+
+			// Width and height
+			var w = 870;
+			var h = 170;
+			var padding_vertical = 30;
+			var padding_horizontal = 80;
+			
+			var xScale, yScaleLeft, yScaleRight, xAxis, yAxisLeft, yScaleRight,
+			lineLeft, lineRight, rectangles, selected, selectedIndex;
+
+			// For converting Dates to strings
+			var formatTime = d3.timeFormat("%b");
+			var formatLineTime = d3.timeFormat("%e %B");
+
+			// Function for converting CSV values from strings to Dates and numbers
+			var rowConverter = ({ date, value, type }) => ({
+					date: new Date(parseInt(date)),
+					value: parseFloat(value),
+          type
+			});
+
+			// Load in data
+			d3.csv("sample_data.csv", rowConverter, data => {
+        var data_parking = data.filter(d => d.type === "parking");
+        var data_pedestrian = data.filter(d => d.type === "pedestrian");
+
+				// Create scale functions
+				xScale = d3.scaleTime()
+          .domain([
+            d3.min(data, d => d.date ),
+            d3.max(data, d => d.date )
+          ])
+          .range([padding_horizontal, w - padding_horizontal]);
+
+				yScaleLeft = createYScale(data_parking);
+        yScaleRight = createYScale(data_pedestrian);
+
+				// Define axes
+				xAxis = d3.axisBottom()
+          .scale(xScale)
+          .ticks(12)
+          .tickFormat(formatTime);
+
+				yAxisLeft = createYAxis(yScaleLeft, "left");
+        yAxisRight = createYAxis(yScaleRight, "right");
+
+				// Define line generator
+				lineLeft = createLine(xScale, yScaleLeft);
+        lineRight = createLine(xScale, yScaleRight);
+				
+				var container = d3.select("body")
+					.append("div")
+					.attr("class", "container")
+					.style("position", "relative");
+
+				// Define the div for the tooltip for the rectangles
+				var rect_tooltip = container
+					.append("div")
+					.attr("class", "rect_tooltip")
+					.style("opacity", 0);
+
+				// Create SVG element
+				var svg = container
+          .append("svg")
+          .attr("width", w)
+          .attr("height", h);
+
+				// Add rectangles
+				rectangles = [];
+				rectangles.push(addRect(svg, rect_tooltip, xScale, new Date(2017, 1, 1), new Date(2017, 3, 1), "2017 Eastern"));
+				init_selected = addRect(svg, rect_tooltip, xScale, new Date(2017, 5, 9), new Date(2017, 6, 16), "Average usage")
+				rectangles.push(init_selected);
+				rectangles.push(addRect(svg, rect_tooltip, xScale, new Date(2017, 11, 3), new Date(2017, 11, 27), "2017 Christmas"));
+				rectangles.push(addRect(svg, rect_tooltip, xScale, new Date(2017, 11, 29), new Date(2018, 0, 15), "2017 New year"));
+				rectangles.push(addRect(svg, rect_tooltip, xScale, new Date(2018, 1, 24), new Date(2018, 2, 15), "2018 Eastern"));
+				onRectClick(init_selected);
+
+				// Add lines
+				addPath(svg, data_parking, BLACK, lineLeft);
+				addPath(svg, data_pedestrian, ORANGE, lineRight);
+
+				// Add axes
+				addAxis(svg, "x_axis", `translate(0, ${h - padding_vertical})`, xAxis);
+				addAxis(svg, "left_axis", `translate(${padding_horizontal}, 0)`, yAxisLeft);
+				addAxis(svg, "right_axis", `translate(${w - padding_horizontal}, 0)`, yAxisRight);
+
+				// Add labels
+				addText(svg, padding_horizontal / 2 - 20, h / 2 - 10, "Daily average parking");
+				addText(svg, padding_horizontal / 2, h / 2 - 10, "spot usage");
+				addText(svg, w - padding_horizontal / 2 + 7, h / 2 - 10, "Pedestrians / hour");
+
+			});
+			
+		function createYScale(data) {
+			return d3.scaleLinear()
+				.domain([0, d3.max(data, d => d.value )])
+				.range([h - padding_vertical, 0]);
+		}
+
+		function createYAxis(scale, type) {
+			if (type === "left") return d3.axisLeft().scale(scale).ticks(2);
+			return d3.axisRight().scale(scale).ticks(2);
+		}
+
+		function createLine(xScale, yScale) {
+			return d3.line()
+				.x(d => xScale(d.date))
+				.y(d => yScale(d.value));
+		}
+
+		function addRect(svg, tooltip, xScale, from, to, description) {
+			const rect = svg.append("rect")
+				.attr("x", xScale(from))
+				.attr("y", 0)
+				.attr("width", xScale(to) - xScale(from))
+				.attr("height", yScaleLeft(0))
+				.style("fill", LIGHT_GREY)
+				.on("mouseover", function(d) {		
+					d3.select(this).style("cursor", "pointer");
+					
+					if (rect !== selected) {
+						rect.transition()
+							.duration(300)
+							.style("fill", GREY);
+					}
+					
+
+					tooltip.transition()
+						.duration(300)
+						.style("opacity", .9);
+						
+					
+					tooltip.html(description)
+						.style("left", `${(xScale(from) + xScale(to)) / 2 - 63}px`) // 63 = (tooltip_width / 2) + 3
+						.style("bottom", `${h + 10}px`);
+					})
+        .on("mouseout", function(d) {
+					d3.select(this).style("cursor", "default");
+
+					if (rect !== selected) {
+						rect.transition()
+							.duration(300)
+							.style("fill", LIGHT_GREY);
+					}
+
+					tooltip.transition()
+						.duration(300)
+						.style("opacity", 0);
+        })
+				.on("click", function() { onRectClick(rect) });
+
+				return rect;
+		}
+
+		function addPath(svg, data, color, line) {
+			svg.append("path")
+				.datum(data)
+				.attr("class", "line")
+				.style("fill", "none")
+				.style("stroke-width", 2)
+				.style("stroke", color)
+				.attr("d", line)
+		}
+
+		function addAxis(svg, _class, transform, axis) {
+			svg.append("g")
+				.attr("class", _class)
+				.attr("transform", transform)
+				.call(axis);
+		}
+
+		function addText(svg, x, y, text) {
+			svg.append("text")
+				.attr("x", x)
+				.attr("y", y)
+				.attr("dy","0.35em")
+				.style("text-anchor", "middle")
+				.attr("transform", `rotate(-90, ${x}, ${y})`)
+				.text(text);
+		}
+
+		function onRectClick(rect) {
+			rectangles.forEach((rectangle, i) => {
+				if (rect === rectangle) {
+					rectangle.transition()
+						.duration(300)
+						.style("fill", DARK_GREY);
+					selected = rect;
+					selectedIndex = i;
+				} else {
+					if (rectangle.style("fill") === "rgb(64, 64, 64)") { // DARK GREY
+						rectangle.transition()
+							.duration(300)
+							.style("fill", LIGHT_GREY);
+					}
+				}
+			});
+		}
+
+  </script>
+  
+</body>
+</html>
