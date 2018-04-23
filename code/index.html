@@ -18,25 +18,35 @@
       <!-- <div id="map"></div> -->
       <table style="width: 100%">
         <tr>
-          <td style="width: 50%">
+          <td style="width: 45%">
             <div id="map-hourly-pedestrian"></div>
           </td>
-          <td style="width: 50%">
+          <td style="width: 5%">
+            <div id="legend-hourly-pedestrian"></div>
+          </td>
+          <td style="width: 45%">
             <div id="map-hourly-parking"></div>
+            <div id="legend-hourly-parking"></div>
           </td>
         </tr>
       </table>
+      <button id="animate-button">Animate!</button>
       <script type="text/javascript">
+        document.getElementById("animate-button").addEventListener('click', console.log)
 
         // Ids
         const idHPed = "map-hourly-pedestrian";
+        const idHPedL = "legend-hourly-pedestrian";
         const idHPark = "map-hourly-parking";
-
+        const idHParkL = "legend-hourly-parking";
 
         //Global height
         const h = 400;
-        const h_chart = 200;
-        const padding = 30;
+
+        svgPedL = d3.select(document.getElementById(idHPedL))
+          .append("svg")
+          .attr("width", "50")
+          .attr("height", h);
 
         const setupMap = function (id) {
           //Create SVG element
@@ -56,125 +66,15 @@
             .projection(projection);
 
           //Define quantize scale to sort data values into buckets of color
-          const color = d3.scaleQuantize()
-            .range([
-              '#ffffe5',
-              '#fff7bc',
-              '#fee391',
-              '#fec44f',
-              '#ffa133',
-              '#dc8522',
-              '#ec7014',
-              '#cc5c0b']);
+          const color = d3.scaleLinear()
+            .range(['#ffffe5', '#cc5c0b'])
+            .interpolate(d3.interpolateHcl);
           //Colors taken from colorbrewer.js, included in the D3 download
 
-          return { projection, path, color, svg_map, w_map }
+          return { projection, path, color, svg_map, w_map };
         };
 
-        // var setupTimeline = function () {
-        // 	//Create SVG element
-        // 	var chartDiv = document.getElementById("chart");
-        // 	var svg_timeline = d3.select(chartDiv).append("svg");
-        // 	var w_chart = chartDiv.clientWidth;
-        // 	svg_timeline.attr("width", w_chart).attr("height", h_chart);
-
-        // 	//For converting Dates to strings
-        // 	var formatTime = d3.timeFormat("%Y");
-
-        // 	//Function for converting CSV values from strings to Dates and numbers
-        // 	var rowConverter = function (d) {
-        // 		return {
-        // 			index: parseFloat(d.INDEX),
-        // 			date: new Date(d.RPT_DT),  //Make a new Date object
-        // 			hour: parseFloat(d.CMPLNT_FR_TM),
-        // 			lat: parseFloat(d.Latitude),  //Convert from string to float
-        // 			lon: parseFloat(d.Longitude)
-        // 		};
-        // 	}
-
-        // 	//Create scale functions, domain for y-scale will be set up later when the data is available
-        // 	var xScale = d3.scaleTime()
-        // 		.range([padding, w_chart - padding * 2])
-
-        // 	var yScale = d3.scaleLinear()
-        // 		.range([h_chart - padding, padding]);
-
-        // 	//Define X axis
-        // 	var xAxis = d3.axisBottom()
-        // 		.scale(xScale)
-        // 		.ticks(10)
-        // 		.tickFormat(formatTime);
-
-        // 	//Define Y axis
-        // 	var yAxis = d3.axisLeft()
-        // 		.scale(yScale)
-        // 		.ticks(10);
-
-        // 	//Create X axis
-        // 	svg_timeline.append("g")
-        // 		.attr("class", "x axis")
-        // 		.attr("transform", "translate(0," + (h_chart - padding) + ")")
-        // 		.call(xAxis);
-
-        // 	//Create Y axis
-        // 	svg_timeline.append("g")
-        // 		.attr("class", "y axis")
-        // 		.attr("transform", "translate(" + padding + ",0)")
-        // 		.call(yAxis);
-
-        // 	// now add titles to the axes
-        // 	svg_timeline.append("text")
-        // 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-        // 		.attr("transform", "translate(" + (padding / 3) + "," + (h_chart / 2) + ")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
-        // 		.text("# of murders");
-
-        // 	svg_timeline.append("text")
-        // 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-        // 		.attr("transform", "translate(" + (w_chart / 2) + "," + (h_chart) + ")")  // centre below axis
-        // 		.text("Year");
-
-        // 	// now add titles to the graph
-        // 	svg_timeline.append("text")
-        // 		.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-        // 		.attr("transform", "translate(" + (w_chart / 2) + "," + (padding / 2) + ")")  // text is drawn off the screen top left, move down and out and rotate
-        // 		.text("NYC Crimes");
-
-        // 	function drawTimeline(data) {
-        // 		//Calibrate the scale domain, given the max value in dataset
-        // 		xScale.domain([
-        // 			d3.min(data, function (d) { return new Date(d.key); }),
-        // 			d3.max(data, function (d) { return new Date(d.key); })
-        // 		]);
-
-        // 		yScale.domain([0, d3.max(data, function (d) { return d.values.length; })]);
-
-        // 		//Define line generator
-        // 		line = d3.line()
-        // 			.x(function (d) { return xScale(new Date(d.key)); })
-        // 			.y(function (d) { return yScale(d.values.length); });
-
-        // 		svg_timeline.append("path")
-        // 			.datum(data)
-        // 			.attr("class", "line")
-        // 			.attr("d", line);
-
-        // 		//Update X axis
-        // 		svg_timeline.select(".x.axis")
-        // 			.transition()
-        // 			.duration(500)
-        // 			.call(xAxis);
-
-        // 		//Update Y axis
-        // 		svg_timeline.select(".y.axis")
-        // 			.transition()
-        // 			.duration(500)
-        // 			.call(yAxis);
-        // 	};
-
-        // 	return { xScale, rowConverter, svg_timeline, drawTimeline }
-        // }
-
-        const { projection: projectionHPed, path: pathHPed, color: colorHPed, svg_map: svgHPed } =
+        const { projection: projectionHPed, path: pathHPed, color: colorHPed, svg_map: svgHPed, w_map: wPed } =
           setupMap(idHPed);
 
         const { projection: projectionHPark, path: pathHPark, color: colorHPark, svg_map: svgHPark } =
@@ -196,43 +96,51 @@
             .attr("stroke", "black")
             .attr("stroke-width", 0.9);
 
-          // //Create one label per state
-          // svg_map.selectAll("text")
-          // 	.data(json.features)
-          // 	.enter()
-          // 	.append("text")
-          // 	.attr("class", "label")
-          // 	.attr("x", function (d) {
-          // 		return path.centroid(d)[0];
-          // 	})
-          // 	.attr("y", function (d) {
-          // 		return path.centroid(d)[1];
-          // 	})
-          // 	.text(function (d) {
-          // 		if (d.properties.name) {
-          // 			return d.properties.name;
-          // 		}
-          // 	});
-
           d3.csv("./output_parking_hourly.csv", function (fullData) {
 
-            let linearGradient = svgHPed.append("linearGradient")
-              .attr("id", "linear-gradient");
+            const legendPadding = 20;
 
-            //Set the color for the start (0%)
+            const yScale = d3.scaleLinear()
+              .domain([
+                d3.max(fullData, d => d.count),
+                d3.min(fullData, d => d.count)
+              ])
+              .range([0, h - 2 * legendPadding])
+              .nice();
+
+            const yAxis = d3.axisRight()
+              .scale(yScale)
+              .ticks(1)
+              .tickSize(0);
+
+            //Create Y axis
+            svgPedL.append("g")
+              .attr("class", "y-axis-hourly")
+              .attr("height", h)
+              .attr("transform", "translate(30," + (legendPadding + 1) + ")")
+              .call(yAxis);
+
+            const linearGradient = svgHPed.append("linearGradient")
+              .attr("id", "linear-gradient")
+              .attr("x1", 0)
+              .attr("x2", 0)
+              .attr("y1", 0)
+              .attr("y2", 1);
+
+            //Set the color for the start (100%)
             linearGradient.append("stop")
               .attr("offset", "0%")
-              .attr("stop-color", "#ffffe5"); //light blue
+              .attr("stop-color", "#cc5c0b");
 
-            //Set the color for the end (100%)
+            //Set the color for the end (0%)
             linearGradient.append("stop")
               .attr("offset", "100%")
-              .attr("stop-color", "#cc5c0b"); //dark blue
+              .attr("stop-color", "#ffffe5");
 
-            svgHPed.append("rect")
-              .attr("width", 360)
-              .attr("height", 20)
-              //.style("transform", "rotate(90deg)")
+            svgPedL.append("rect")
+              .attr("width", 20)
+              .attr("height", h - 2 * legendPadding + 2)
+              .attr("transform", "translate(10, " + legendPadding + ")")
               .style("fill", "url(#linear-gradient)");
 
             colorHPed.domain([
@@ -268,6 +176,7 @@
                 .attr("r", 1)
                 .attr("class", "show " + selector)
                 .style("fill", ({ count }) => count ? colorHPed(count) : "#ccc")
+                .style("stroke", "none")
                 .attr("fill-opacity", 0)
                 .attr("stroke-opacity", 0)
                 .transition()

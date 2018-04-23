@@ -1,53 +1,59 @@
 html {
-  font-family: 'Roboto'
+    font-family: 'Roboto'
 }
 
 body {
-  max-width: 768px;
-  margin: 0 auto;
-  background-color: #EFEFEF
+    max-width: 768px;
+    margin: 0 auto;
+    background-color: #EFEFEF
 }
 
 .card {
-  border-radius: 5px;
-  box-shadow: 0px 5px 10px 0px rgba(0,0,0, 0.2);
-  -webkit-transition: box-shadow 1s; /* Safari */
-  transition: box-shadow 1s;
-  padding: 20px;
-  text-align: justify;
-  cursor: default;
+    border-radius: 5px;
+    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.2);
+    -webkit-transition: box-shadow 1s; /* Safari */
+    transition: box-shadow 1s;
+    padding: 20px;
+    text-align: justify;
+    cursor: default;
 }
 
 .label {
-  font-family: Helvetica, sans-serif;
-  font-size: 13px;
-  fill: black;
-  font-weight: bold;
-  text-anchor: middle;
+    font-family: Helvetica, sans-serif;
+    font-size: 13px;
+    fill: black;
+    font-weight: bold;
+    text-anchor: middle;
 }
 
 .line {
-  fill: none;
-  stroke: teal;
-  stroke-width: 0.5;
+    fill: none;
+    stroke: teal;
 }
 
 .show {
-  fill: #fceb00;
-  stroke: #000000;
-  stroke-width: 0.5;
-  opacity: 1.0;
+    fill: #fceb00;
+    stroke: #000000;
+    opacity: 1.0;
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .chartDiv {
-  margin: 30px;
+    margin: 30px;
 }
 
 .buttonDiv {
-  width: 100%;
-  text-align: center;
+    width: 100%;
+    text-align: center;
+}
+
+svg .y-axis-hourly path{
+    stroke: none;
+}
+
+svg .y-axis-hourly {
+    font-size: 15px;
 }
