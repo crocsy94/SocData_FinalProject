@@ -1,0 +1,60 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2B2A29;
+  margin: auto;
+  width: 900px;
+}
+
+.right_axis text {
+  fill: #EF7F1A;
+  font-size: 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.right_axis line {
+  stroke: #EF7F1A;
+}
+
+.right_axis path {
+  opacity: 0;
+}
+
+.left_axis text {
+  fill: #2B2A29;
+  font-size: 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.left_axis line {
+  stroke: #2B2A29;
+}
+
+.left_axis path {
+  opacity: 0;
+}
+
+.x_axis text {
+  fill: #2B2A29;
+  font-size: 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.x_axis line {
+  opacity: 0;
+}
+
+.x_axis path {
+   stroke: #C0C0C0;
+   stroke-width: 2;
+}
+
+div.rect_tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 4px;
+  width: 120px;
+  height: 25px;
+  background: #C0C0C0;
+  border: 0px;
+  border-radius: 4px;
+}
