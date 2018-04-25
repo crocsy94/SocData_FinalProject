@@ -1,16 +1,14 @@
 html {
-    font-family: 'Roboto'
+    font-family: 'Roboto', 'Helvetica';
 }
 
-body {
-    max-width: 768px;
-    margin: 0 auto;
-    background-color: #EFEFEF
+.inline {
+    display: inline-block;
 }
 
 .card {
     border-radius: 5px;
-    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
     -webkit-transition: box-shadow 1s; /* Safari */
     transition: box-shadow 1s;
     padding: 20px;
@@ -50,10 +48,16 @@ body {
     text-align: center;
 }
 
-svg .y-axis-hourly path{
+svg .y-axis-hourly path {
     stroke: none;
 }
 
 svg .y-axis-hourly {
     font-size: 15px;
+}
+
+svg #animate-text{
+    font-weight: bold;
+    font-size: 20px;
+    fill: #cc7200;
 }
