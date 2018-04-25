@@ -53,7 +53,6 @@
   const color = ["#cc7200", "#ffffe5"];
   const doughnutColor = [color[0], "#dadada"];
 
-  const duration = 400;
   const delay = 1000;
   const width = 200;
   const height = 200;
@@ -127,7 +126,7 @@
       dataset.lower = calcHour(0);
       dataset.upper = calcHour(hour);
       path = path.data(pie(dataset.upper));
-      path.transition().duration(duration).attrTween("d", function (a) {
+      path.transition().duration(delay).attrTween("d", function (a) {
         const i = d3.interpolate(this._current, a);
         this._current = i(0);
         return function (t) {
