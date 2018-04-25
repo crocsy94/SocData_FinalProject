@@ -1,0 +1,74 @@
+html {
+    font-family: 'Roboto', 'Helvetica';
+}
+
+.inline {
+    display: inline-block;
+}
+
+.label {
+    font-family: Helvetica, sans-serif;
+    font-size: 13px;
+    fill: black;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
+.line {
+    fill: none;
+    stroke: teal;
+}
+
+.hidden {
+    display: none;
+}
+
+.chartDiv {
+    margin: 30px;
+}
+
+.buttonDiv {
+    width: 100%;
+    text-align: center;
+}
+
+svg .y-axis-hourly path {
+    stroke: none;
+}
+
+svg .y-axis-hourly {
+    font-size: 15px;
+}
+
+svg #animate-text {
+    font-weight: bold;
+}
+
+.doughnut-title {
+    cursor: pointer;
+    font-size: 23px;
+    fill: #cc7200;
+}
+
+.doughnut-title:hover {
+    fill: #5a5757;
+}
+
+.doughnut-hour {
+    cursor: default;
+    font-size: 30px;
+    fill: #cc7200;
+}
+
+text{
+    fill: #5a5757;
+    font-weight: bold;
+}
+
+.title{
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    padding-right: 80px;
+    margin: 10px 0;
+}
