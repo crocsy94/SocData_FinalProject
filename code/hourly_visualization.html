@@ -30,8 +30,8 @@
 </body>
 
 <script>
-  const pedestrianCsv = "./output_parking_hourly.csv";
-  const parkingCsv = "./output_parking_hourly.csv";
+  const pedestrianCsv = "../data/output_pedestrian_day.csv";
+  const parkingCsv = "../data/output_parking_day.csv";
 
   // Ids
   const idHPed = "map-hourly-pedestrian";
@@ -146,7 +146,7 @@
 
   const svgPedLegend = d3.select(document.getElementById(idHPedLegend))
     .append("svg")
-    .attr("width", "50")
+    .attr("width", "80")
     .attr("height", mapHeight);
 
   const svgParkLegend = d3.select(document.getElementById(idHParkLegend))
@@ -209,19 +209,22 @@
 
     d3.csv(pedestrianCsv, function (fullData) {
 
+      const max = d3.max(fullData, d => parseInt(d.count));
+      const min = d3.min(fullData, d => parseInt(d.count));
+
+      colorHPed.domain([max, min]);
+
       const legendPadding = 20;
 
       const yScale = d3.scaleLinear()
-        .domain([
-          d3.max(fullData, d => d.count),
-          d3.min(fullData, d => d.count)
-        ])
+        .domain([max, min])
         .range([0, mapHeight - 2 * legendPadding])
         .nice();
 
       const yAxis = d3.axisRight()
         .scale(yScale)
-        .ticks(1);
+        .ticks(1)
+        .tickValues([Math.ceil(max / 1000) * 1000, 0]);
 
       //Create Y axis
       svgPedLegend.append("g")
@@ -253,22 +256,17 @@
         .attr("transform", "translate(10, " + legendPadding + ")")
         .style("fill", "url(#linear-gradient)");
 
-      colorHPed.domain([
-        d3.max(fullData, d => d.count),
-        d3.min(fullData, d => d.count)
-      ]);
 
       const updateCircles = (data) => {
         svgHPed.selectAll("circle.hourly-pedestrian")
           .attr("fill-opacity", 1)
-          .attr("stroke-opacity", 1)
           .transition()
-          .duration(400)
-          //change fill and stroke opacity to avoid CSS conflicts
+          .duration(delay * 0.6)
+          .attr("fill-opacity", 0.7)
+          .transition()
+          .duration(delay * 0.4)
           .attr("fill-opacity", 0)
-          .attr("stroke-opacity", 0)
-          .attr("r", 1)
-          .remove(); //remove after transitions are complete
+          .remove();
 
         // add circles to map
         svgHPed
@@ -283,18 +281,18 @@
           .attr("cy", function (d) {
             return projectionHPed([d.longitude, d.latitude])[1];
           })
-          .attr("r", 1)
+          .attr("r", 5)
           .attr("class", "show hourly-pedestrian")
-          .style("fill", ({ count }) => count ? colorHPed(count) : "#ccc")
+          .style("fill", ({ count }) => count ? colorHPed(count) : color[1])
           .style("stroke", "none")
           .attr("fill-opacity", 0)
-          .attr("stroke-opacity", 0)
           .transition()
-          .duration(400)
+          .duration(delay * 0.4)
+          .attr("fill-opacity", 0.7)
+          .transition()
+          .duration(delay * 0.6)
           //change fill and stroke opacity to avoid CSS conflicts
           .attr("fill-opacity", 1)
-          .attr("stroke-opacity", 1)
-          .attr("r", 5)
       };
 
       animatePedestrian = (hour) => {
@@ -304,6 +302,9 @@
     });
 
     d3.csv(parkingCsv, function (fullData) {
+      const max = d3.max(fullData, d => parseInt(d.count));
+      const min = d3.min(fullData, d => parseInt(d.count));
+      colorHPark.domain([max, min]);
 
       const legendPadding = 20;
 
@@ -334,21 +335,13 @@
         .attr("transform", "translate(10, " + (legendPadding + (mapHeight - 2 * legendPadding + 2) / 2) + ")")
         .style("fill", color[1]);
 
-      colorHPark.domain([
-        d3.max(fullData, d => d.count),
-        d3.min(fullData, d => d.count)
-      ]);
-
       const updateCircles = (data) => {
         svgHPark.selectAll("circle.hourly-parking")
           .attr("fill-opacity", 1)
-          .attr("stroke-opacity", 1)
           .transition()
-          .duration(duration)
+          .duration(delay)
           //change fill and stroke opacity to avoid CSS conflicts
           .attr("fill-opacity", 0)
-          .attr("stroke-opacity", 0)
-          .attr("r", 1)
           .remove(); //remove after transitions are complete
 
         // add circles to map
@@ -364,18 +357,15 @@
           .attr("cy", function (d) {
             return projectionHPark([d.longitude, d.latitude])[1];
           })
-          .attr("r", 1)
           .attr("class", "show hourly-parking")
+          .attr("r", 3)
           .style("fill", ({ count }) => count ? colorHPark(count) : color[1])
           .style("stroke", "none")
           .attr("fill-opacity", 0)
-          .attr("stroke-opacity", 0)
           .transition()
-          .duration(duration)
+          .duration(delay)
           //change fill and stroke opacity to avoid CSS conflicts
           .attr("fill-opacity", 1)
-          .attr("stroke-opacity", 1)
-          .attr("r", 5)
       };
 
       animatePark = (hour) => {
