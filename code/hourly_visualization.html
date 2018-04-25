@@ -5,31 +5,38 @@
   <meta charset="utf-8">
   <title>Final Project</title>
   <script type="text/javascript" src="./d3.js"></script>
-  <link rel="stylesheet" href="hourly_styles.css">
+  <link rel="stylesheet" href="hourly_visualization_styles.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
-  <!-- <div id="map"></div> -->
-  <table style="width: 100%">
+  <table style="width: 900px">
     <tr>
-      <td style="width: 30%">
+      <td>
         <div id="animate-doughnut"></div>
       </td>
-      <td style="width: 30%">
-        <div class="inline" id="map-hourly-pedestrian"></div>
-        <div class="inline" id="legend-hourly-pedestrian"></div>
+      <td>
+        <div class="title">Pedestrians</div>
+        <div class="map">
+          <div class="inline" id="map-hourly-pedestrian"></div>
+          <div class="inline" id="legend-hourly-pedestrian"></div>
+        </div>
       </td>
-      <td style="width: 30%">
-        <div class="inline" id="map-hourly-parking"></div>
-        <div class="inline" id="legend-hourly-parking"></div>
+      <td>
+        <div class="title">Parking places</div>
+        <div class="map">
+          <div class="inline" id="map-hourly-parking"></div>
+          <div class="inline" id="legend-hourly-parking"></div>
+        </div>
       </td>
     </tr>
   </table>
 </body>
 
 <script>
+  //import * as d3 from "./d3";
+
   const pedestrianCsv = "../data/output_pedestrian_day.csv";
   const parkingCsv = "../data/output_parking_day.csv";
 
@@ -44,29 +51,29 @@
   let animatePedestrian;
 
   const color = ["#cc7200", "#ffffe5"];
+  const doughnutColor = [color[0], "#dadada"];
 
   const duration = 400;
   const delay = 1000;
-  const width = 300;
-  const height = 300;
+  const width = 200;
+  const height = 200;
 
   let hour = 0;
 
-
+  /*===============================================================================7*/
   /*Doughnut*/
 
   const calcHour = hour => [hour, 23 - hour];
 
   const dataset = {
-      lower: calcHour(0),
-      upper: calcHour(hour)
-    },
-    radius = Math.min(width, height) / 3,
-    pie = d3.pie().sort(null),
-    format = d3.format(".0%");
+    lower: calcHour(0),
+    upper: calcHour(hour)
+  };
+  const radius = Math.min(width, height) / 3;
+  const pie = d3.pie().sort(null);
 
   const arc = d3.arc()
-    .innerRadius(radius * 0.6)
+    .innerRadius(radius * 0.7)
     .outerRadius(radius);
 
   const svg = d3.select("#" + idDoughnut).append("svg")
@@ -78,7 +85,7 @@
   let path = svg.selectAll("path")
     .data(pie(dataset.lower))
     .enter().append("path")
-    .style("fill", (d, i) => color[i])
+    .style("fill", (d, i) => doughnutColor[i])
     .attr("d", arc)
     .each(function (d) {
       this._current = d;
@@ -89,14 +96,15 @@
     .attr("text-anchor", "middle")
     .attr("dy", ".3em")
     .text("Animate")
-    .style("cursor", "pointer");
+    .attr("class", "doughnut-title");
+
 
   const animateDoughnut = () => {
     if (hour === 24) {
       hour = 0;
       text
         .text("Animate")
-        .style("cursor", "pointer");
+        .attr("class", "doughnut-title");
 
       document.getElementById("animate-text").addEventListener("click", function () {
         animateDoughnut();
@@ -108,7 +116,7 @@
 
     text
       .text((hour < 10 ? "0" + (hour) : (hour)) + ":00")
-      .style("cursor", "default");
+      .attr("class", "doughnut-hour");
 
     setTimeout(() => {
       animatePedestrian(hour);
@@ -142,7 +150,7 @@
   /*===============================================================*/
   /*Maps*/
 
-  const mapHeight = 400;
+  const mapHeight = 350;
 
   const svgPedLegend = d3.select(document.getElementById(idHPedLegend))
     .append("svg")
@@ -151,14 +159,14 @@
 
   const svgParkLegend = d3.select(document.getElementById(idHParkLegend))
     .append("svg")
-    .attr("width", "150")
+    .attr("width", "80")
     .attr("height", mapHeight);
 
   const setupMap = function (id) {
     //Create SVG element
     const mapDiv = document.getElementById(id);
     const svg_map = d3.select(mapDiv).append("svg");
-    const w_map = mapDiv.clientWidth;
+    const w_map = 250;
     svg_map.attr("width", w_map).attr("height", mapHeight);
 
     // Define map projection
@@ -175,7 +183,6 @@
     const colorScale = d3.scaleLinear()
       .range(color)
       .interpolate(d3.interpolateHcl);
-    //Colors taken from colorbrewer.js, included in the D3 download
 
     return { projection, path, colorScale, svg_map, w_map };
   };
@@ -194,7 +201,7 @@
       .enter()
       .append("path")
       .attr("d", pathHPed)
-      .style("fill", (d, i) => 'lightgrey')
+      .style("fill", doughnutColor[1])
       .attr("stroke", "black")
       .attr("stroke-width", 0.9);
 
@@ -203,7 +210,7 @@
       .enter()
       .append("path")
       .attr("d", pathHPark)
-      .style("fill", (d, i) => 'lightgrey')
+      .style("fill", doughnutColor[1])
       .attr("stroke", "black")
       .attr("stroke-width", 0.9);
 
@@ -243,12 +250,12 @@
       //Set the color for the start (100%)
       linearGradient.append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", "#cc7200");
+        .attr("stop-color", color[0]);
 
       //Set the color for the end (0%)
       linearGradient.append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", "#ffffe5");
+        .attr("stop-color", color[1]);
 
       svgPedLegend.append("rect")
         .attr("width", 15)
@@ -306,15 +313,46 @@
       const min = d3.min(fullData, d => parseInt(d.count));
       colorHPark.domain([max, min]);
 
+      // const legendPadding = 20;
+      //
+      // const yScale = d3.scaleOrdinal()
+      //   .domain(["Occupied", "Empty"])
+      //   .range([0, mapHeight - 2 * legendPadding]);
+      //
+      // const yAxis = d3.axisRight()
+      //   .scale(yScale)
+      //   .ticks(1);
+      //
+      // //Create Y axis
+      // svgParkLegend.append("g")
+      //   .attr("class", "y-axis-hourly")
+      //   .attr("height", mapHeight)
+      //   .attr("transform", "translate(30," + (legendPadding + 1) + ")")
+      //   .call(yAxis);
+      //
+      // svgParkLegend.append("rect")
+      //   .attr("width", 15)
+      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
+      //   .attr("transform", "translate(10, " + legendPadding + ")")
+      //   .style("fill", color[0]);
+      //
+      // svgParkLegend.append("rect")
+      //   .attr("width", 15)
+      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
+      //   .attr("transform", "translate(10, " + (legendPadding + (mapHeight - 2 * legendPadding + 2) / 2) + ")")
+      //   .style("fill", color[1]);
+
       const legendPadding = 20;
 
-      const yScale = d3.scaleOrdinal()
-        .domain(["Occupied", "Empty"])
-        .range([0, mapHeight - 2 * legendPadding]);
+      const yScale = d3.scaleLinear()
+        .domain([max, min])
+        .range([0, mapHeight - 2 * legendPadding])
+        .nice();
 
       const yAxis = d3.axisRight()
         .scale(yScale)
-        .ticks(1);
+        .ticks(1)
+        .tickValues([max, 0]);
 
       //Create Y axis
       svgParkLegend.append("g")
@@ -323,17 +361,28 @@
         .attr("transform", "translate(30," + (legendPadding + 1) + ")")
         .call(yAxis);
 
-      svgParkLegend.append("rect")
-        .attr("width", 15)
-        .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-        .attr("transform", "translate(10, " + legendPadding + ")")
-        .style("fill", color[0]);
+      const linearGradient = svgHPark.append("linearGradient")
+        .attr("id", "linear-gradient")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0)
+        .attr("y2", 1);
+
+      //Set the color for the start (100%)
+      linearGradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", color[0]);
+
+      //Set the color for the end (0%)
+      linearGradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", color[1]);
 
       svgParkLegend.append("rect")
         .attr("width", 15)
-        .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-        .attr("transform", "translate(10, " + (legendPadding + (mapHeight - 2 * legendPadding + 2) / 2) + ")")
-        .style("fill", color[1]);
+        .attr("height", mapHeight - 2 * legendPadding + 2)
+        .attr("transform", "translate(10, " + legendPadding + ")")
+        .style("fill", "url(#linear-gradient)");
 
       const updateCircles = (data) => {
         svgHPark.selectAll("circle.hourly-parking")
