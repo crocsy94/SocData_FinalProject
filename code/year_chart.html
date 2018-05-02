@@ -3,12 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>Second part</title>
-  <link rel="stylesheet" href="./second_part.css">
+  <link rel="stylesheet" href="./year_chart_styles.css">
   <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 <body>
-  <h1>Is it different on holidays?</h1>
-  <p>To figure out, instead of the parking places, we analysed the frequency of people leaving parking places. This correlates well with the pedestrian data since both of them are indications of people moving. Here is what we discovered by taking a look at year 2017.</p>
   <script>
 			// selectedIndex contains the selected holiday's index, as they have been added to the rectangles array.
 			const ORANGE = "#EF7F1A";
@@ -18,8 +16,8 @@
 			const LIGHT_GREY = "#EBEBEB";
 
 			// Width and height
-			var w = 870;
-			var h = 170;
+			var w = 800;
+			var h = 160;
 			var padding_vertical = 30;
 			var padding_horizontal = 80;
 			
@@ -38,7 +36,7 @@
 			});
 
 			// Load in data
-			d3.csv("sample_data.csv", rowConverter, data => {
+			d3.csv("year_chart_data.csv", rowConverter, data => {
         var data_parking = data.filter(d => d.type === "parking");
         var data_pedestrian = data.filter(d => d.type === "pedestrian");
 
