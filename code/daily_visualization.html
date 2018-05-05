@@ -61,7 +61,7 @@
   const currentDayElement = document.getElementById("current-day");
 
   const updateDateText = date => {
-    currentDayElement.innerText = date.toLocaleString("en-UK", {day:"2-digit" ,month: "long"});
+    currentDayElement.innerText = date.toLocaleString("en-UK", { day: "2-digit", month: "long" });
   };
   updateDateText(currentDay);
 
@@ -110,7 +110,7 @@
 
   const timeAxis = d3.axisRight(timeScale)
     .ticks(interval.days)
-    .tickFormat(d3.timeFormat("%B %d"))
+    .tickFormat(d3.timeFormat("%b %d"))
     .tickPadding(10);
 
   //Create Y axis
@@ -185,9 +185,8 @@
       scaleRect.attr("y", timeScale(currentDay) - scalePadding);
 
 
-
       return animateTime()
-    }, delay/2);
+    }, delay / 2);
   };
 
 

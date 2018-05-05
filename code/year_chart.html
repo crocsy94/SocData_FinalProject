@@ -13,7 +13,7 @@
   <script>
     // selectedIndex contains the selected holiday's index, as they have been added to the rectangles array.
     const ORANGE = "#cc7200";
-    const BLACK = "#2B2A29";
+    const BLACK = "#373634";
     const GREY = "#C0C0C0";
     const DARK_GREY = "#5a5757";
     const LIGHT_GREY = "#EBEBEB";
@@ -33,12 +33,7 @@
       {
         start: new Date(2016, 0, 1),
         end: new Date(2016, 1, 1),
-        name: "First month"
-      },
-      {
-        start: new Date(2016, 5, 9),
-        end: new Date(2016, 6, 16),
-        name: "Average usage"
+        name: "Start of year"
       },
       {
         start: new Date(2016, 2, 15),
@@ -46,9 +41,19 @@
         name: "Easter"
       },
       {
+        start: new Date(2016, 5, 9),
+        end: new Date(2016, 6, 16),
+        name: "Average usage"
+      },
+      {
         start: new Date(2016, 8, 15),
         end: new Date(2016, 9, 15),
-        name: "School start"
+        name: "Autumn"
+      },
+      {
+        start: new Date(2016, 11, 1),
+        end: new Date(2016, 11, 31),
+        name: "Winter holiday"
       },
     ];
 
@@ -136,9 +141,9 @@
       addAxis(svg, "right_axis", `translate(${w - padding_horizontal}, 0)`, yAxisRight);
 
       // Add labels
-      addText(svg, 10, h / 2 - 10, "Daily average parking");
-      addText(svg, 25, h / 2 - 10, "spot usage");
-      addText(svg, w - padding_horizontal / 2 + 7, h / 2 - 10, "Pedestrians / hour");
+      addText(svg, 10, h / 2 - 10, "Daily average parking", BLACK);
+      addText(svg, 25, h / 2 - 10, "spot usage", BLACK);
+      addText(svg, w - padding_horizontal / 2 + 7, h / 2 - 10, "Pedestrians / hour", ORANGE);
 
       loadingDiv.style.display = "none";
       chartDiv.style.display = "inline";
@@ -224,12 +229,14 @@
         .call(axis);
     }
 
-    function addText(svg, x, y, text) {
+    function addText(svg, x, y, text, color) {
       svg.append("text")
         .attr("x", x)
         .attr("y", y)
         .attr("dy", "0.35em")
         .style("text-anchor", "middle")
+        .style("fill", color)
+        .style("font-weight", "bold")
         .attr("transform", `rotate(-90, ${x}, ${y})`)
         .text(text);
     }
