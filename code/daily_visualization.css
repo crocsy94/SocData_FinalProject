@@ -113,10 +113,6 @@ text {
     display: none;
 }
 
-.dragged {
-    border: #5a5757;
-}
-
 #animate-text {
     font-weight: bold;
     color: #cc7200;
@@ -127,8 +123,28 @@ text {
     cursor: pointer;
 }
 
-.current-day{
+.current-day {
     color: #cc7200;
     text-align: center;
     font-size: 20px;
+}
+
+#time-scale g.tick line {
+    transform: translate(-9px, 0px);
+    stroke: #beb9b9;
+}
+
+#time-scale path {
+    stroke: #beb9b9;
+}
+
+.slider-rect {
+    width: 30px;
+    height: 15px;
+    fill: #cc7200;
+    cursor: pointer;
+}
+
+.slider-rect:hover {
+    fill: #5a5757;
 }

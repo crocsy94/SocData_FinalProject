@@ -28,7 +28,7 @@
           <div class="inline" id="legend-daily-parking"></div>
         </div>
       </td>
-      <td>
+      <td style="width: 130px">
         <div class="current-day" id="current-day">day</div>
         <div class="map">
           <div class="inline" id="time-scale"></div>
@@ -111,10 +111,13 @@
   const timeAxis = d3.axisRight(timeScale)
     .ticks(interval.days)
     .tickFormat(d3.timeFormat("%b %d"))
+    .tickSize(20)
     .tickPadding(10);
+
 
   //Create Y axis
   const svgTimeScale = svgTimeScaleContainer.append("g")
+    .attr("id", "time-scale")
     .attr("class", "y-axis-daily")
     .attr("height", timeScaleHeight)
     .attr("transform", "translate(30, 10)")
@@ -124,11 +127,7 @@
   const scaleRect = svgTimeScale.append("rect")
     .attr("x", -15)
     .attr("y", axisHeight - scalePadding)
-    .attr("width", 30)
-    .attr("height", 15)
-    .attr("fill", color[0])
-    .style("cursor", "pointer")
-    .style('fill', color[0])
+    .attr("class", "slider-rect")
     .call(d3.drag()
       .on("start", dragStarted)
       .on("drag", dragged)
@@ -136,8 +135,6 @@
 
 
   function dragStarted() {
-    if (isUnderAnimation) return;
-    d3.select(this).raise().classed("dragged", true);
   }
 
   function dragged() {
@@ -159,7 +156,6 @@
     const currentDay = timeScale.invert(parseFloat(d3.select(this).attr("y")) + scalePadding);
     animatePedestrian(currentDay);
     animatePark(currentDay);
-    d3.select(this).classed("dragged", false);
   }
 
 
@@ -358,6 +354,8 @@
         });
         return updateCircles(data, "daily-pedestrian");
       };
+
+      animatePedestrian(currentDay);
     });
 
     d3.csv(parkingCsv, function (fullData) {
@@ -448,6 +446,8 @@
         });
         return updateCircles(data, "daily-parking");
       };
+
+      animatePark(currentDay);
 
       loadingElement.style.display = "none";
       visualizationElement.style.display = "inline";
