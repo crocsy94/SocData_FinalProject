@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>Final Project</title>
   <script type="text/javascript" src="./d3.js"></script>
-  <link rel="stylesheet" href="hourly_visualization_styles.css">
+  <link rel="stylesheet" href="daily_visualization.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="./fa/css/fontawesome-all.css" rel="stylesheet">
@@ -17,20 +17,23 @@
   <table id="visualization" class="container" style="display: none">
     <tr>
       <td>
-        <div id="animate-doughnut"></div>
-      </td>
-      <td>
         <div class="title">Pedestrians</div>
         <div class="map">
-          <div class="inline" id="map-hourly-pedestrian"></div>
-          <div class="inline" id="legend-hourly-pedestrian"></div>
+          <div class="inline" id="map-daily-pedestrian"></div>
+          <div class="inline" id="legend-daily-pedestrian"></div>
         </div>
       </td>
       <td>
         <div class="title">Parking places</div>
         <div class="map">
-          <div class="inline" id="map-hourly-parking"></div>
-          <div class="inline" id="legend-hourly-parking"></div>
+          <div class="inline" id="map-daily-parking"></div>
+          <div class="inline" id="legend-daily-parking"></div>
+        </div>
+      </td>
+      <td>
+        <div class="map">
+          <div class="inline" id="time-scale"></div>
+          <div class="inline" id="animate-text">Animate</div>
         </div>
       </td>
     </tr>
@@ -38,20 +41,23 @@
 </body>
 
 <script>
-  //import * as d3 from "./d3";
 
-  const pedestrianCsv = "../data/output_pedestrian_day.csv";
-  const parkingCsv = "../data/output_parking_day.csv";
+  let interval = window.parent.timeData;
+
+  const pedestrianCsv = "../data/output_pedestrian_year.csv";
+  const parkingCsv = "../data/output_parking_year.csv";
 
   const loadingElement = document.getElementById("loading");
   const visualizationElement = document.getElementById("visualization");
 
   // Ids
-  const idHPed = "map-hourly-pedestrian";
-  const idHPedLegend = "legend-hourly-pedestrian";
-  const idHPark = "map-hourly-parking";
-  const idHParkLegend = "legend-hourly-parking";
-  const idDoughnut = "animate-doughnut";
+  const idHPed = "map-daily-pedestrian";
+  const idHPedLegend = "legend-daily-pedestrian";
+  const idHPark = "map-daily-parking";
+  const idHParkLegend = "legend-daily-parking";
+  const idTimeScale = "time-scale";
+
+  let isUnderAnimation = false;
 
   let animatePark;
   let animatePedestrian;
@@ -59,103 +65,129 @@
   const color = ["#cc7200", "#ffffe5"];
   const doughnutColor = [color[0], "#dadada"];
 
+  const mapHeight = 350;
+
   const delay = 1000;
   const width = 200;
   const height = 200;
 
-  let hour = 0;
+  let currentDay = interval.start;
 
-  /*===============================================================================7*/
-  /*Doughnut*/
+  /*===============================================================================*/
+  /*Animation*/
 
-  const calcHour = hour => [hour, 23 - hour];
+  interval.days = Math.ceil((interval.end - interval.start) / (1000 * 60 * 60 * 24));
+  const axisLabels = Array.apply(0, new Array(interval.days)).map(() => " ");
+  axisLabels[0] = interval.start;
+  axisLabels[axisLabels.length - 1] = interval.end;
 
-  const dataset = {
-    lower: calcHour(0),
-    upper: calcHour(hour)
-  };
-  const radius = Math.min(width, height) / 3;
-  const pie = d3.pie().sort(null);
+  const scalePadding = 8;
 
-  const arc = d3.arc()
-    .innerRadius(radius * 0.7)
-    .outerRadius(radius);
+  const axisHeight = mapHeight - 20;
 
-  const svg = d3.select("#" + idDoughnut).append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-  let path = svg.selectAll("path")
-    .data(pie(dataset.lower))
-    .enter().append("path")
-    .style("fill", (d, i) => doughnutColor[i])
-    .attr("d", arc)
-    .each(function (d) {
-      this._current = d;
-    });
-
-  const text = svg.append("text")
-    .attr("id", "animate-text")
-    .attr("text-anchor", "middle")
-    .attr("dy", ".3em")
-    .text("Animate")
-    .attr("class", "doughnut-title");
+  const timeScale = d3.scaleTime()
+    .range([axisHeight, 0])
+    .domain([interval.start, interval.end]);
 
 
-  const animateDoughnut = () => {
-    if (hour === 24) {
-      hour = 0;
-      text
-        .text("Animate")
-        .attr("class", "doughnut-title");
+  const svgTimeScaleContainer = d3.select(document.getElementById(idTimeScale))
+    .append("svg")
+    .attr("width", "100")
+    .attr("height", mapHeight);
+
+  const timeAxis = d3.axisRight(timeScale)
+    .ticks(interval.days)
+    .tickFormat(d3.timeFormat("%d %B"))
+    .tickPadding(10);
+
+  //Create Y axis
+  const svgTimeScale = svgTimeScaleContainer.append("g")
+    .attr("class", "y-axis-daily")
+    .attr("height", mapHeight)
+    .attr("transform", "translate(30, 10)")
+    .call(timeAxis);
+
+
+  var scaleRect = svgTimeScale.append("rect")
+    .attr("x", -15)
+    .attr("y", axisHeight - scalePadding)
+    .attr("width", 30)
+    .attr("height", 15)
+    .attr("fill", color[0])
+    .style("cursor", "ew-resize")
+    .style('fill', color[0])
+    .call(d3.drag()
+      .on("start", dragStarted)
+      .on("drag", dragged)
+      .on("end", dragEnded));
+
+  function dragStarted() {
+    if (isUnderAnimation) return;
+    d3.select(this).raise().classed("dragged", true);
+  }
+
+  function dragged() {
+    if (isUnderAnimation) return;
+    let y = d3.event.y;
+    y = y > axisHeight ? axisHeight : y;
+    y = y < 0 ? 0 : y;
+
+    let yTime = new Date(timeScale.invert(y));
+
+    yTimeRounded = new Date(yTime.getFullYear(), yTime.getMonth(), yTime.getDate());
+    d3.select(this).attr("y", timeScale(yTimeRounded) - scalePadding)
+  }
+
+  function dragEnded() {
+    if (isUnderAnimation) return;
+    const currentDay = timeScale.invert(parseFloat(d3.select(this).attr("y")) + scalePadding);
+    animatePedestrian(currentDay);
+    animatePark(currentDay);
+    d3.select(this).classed("dragged", false);
+  }
+
+
+  const animateTime = () => {
+    isUnderAnimation = true;
+    if (currentDay.getTime() >= interval.end.getTime()) {
+      currentDay = interval.start;
 
       document.getElementById("animate-text").addEventListener("click", function () {
-        animateDoughnut();
+        animateTime();
         this.removeEventListener('click', arguments.callee, false);
       });
 
+      isUnderAnimation = false;
       return true;
     }
 
-    text
-      .text((hour < 10 ? "0" + (hour) : (hour)) + ":00")
-      .attr("class", "doughnut-hour");
+    // text
+    //   .text((hour < 10 ? "0" + (hour) : (hour)) + ":00")
+    //   .attr("class", "doughnut-hour");
 
     setTimeout(() => {
-      animatePedestrian(hour);
-      animatePark(hour);
+      animatePedestrian(currentDay);
+      animatePark(currentDay);
 
-      hour++;
+      currentDay = new Date(currentDay.getTime() + 1000 * 60 * 60 * 24);
+      console.log(currentDay)
 
-      dataset.lower = calcHour(0);
-      dataset.upper = calcHour(hour);
-      path = path.data(pie(dataset.upper));
-      path.transition().duration(delay).attrTween("d", function (a) {
-        const i = d3.interpolate(this._current, a);
-        this._current = i(0);
-        return function (t) {
-          return arc(i(t));
-        };
-      });
+      scaleRect.attr("y", timeScale(currentDay) - scalePadding);
 
-      return animateDoughnut()
+      return animateTime()
     }, delay);
   };
 
 
   document.getElementById("animate-text").addEventListener("click", function () {
     if (animatePark && animatePedestrian) {
-      animateDoughnut();
+      animateTime();
       this.removeEventListener('click', arguments.callee, false);
     }
   });
 
   /*===============================================================*/
   /*Maps*/
-
-  const mapHeight = 350;
 
   const svgPedLegend = d3.select(document.getElementById(idHPedLegend))
     .append("svg")
@@ -240,7 +272,7 @@
 
       //Create Y axis
       svgPedLegend.append("g")
-        .attr("class", "y-axis-hourly")
+        .attr("class", "y-axis-daily")
         .attr("height", mapHeight)
         .attr("transform", "translate(30," + (legendPadding + 1) + ")")
         .call(yAxis);
@@ -270,7 +302,7 @@
 
 
       const updateCircles = (data) => {
-        svgHPed.selectAll("circle.hourly-pedestrian")
+        svgHPed.selectAll("circle.daily-pedestrian")
           .attr("fill-opacity", 1)
           .transition()
           .duration(delay * 0.6)
@@ -283,7 +315,7 @@
         // add circles to map
         svgHPed
           .append("g")
-          .selectAll("circle.hourly-pedestrian")
+          .selectAll("circle.daily-pedestrian")
           .data(data)
           .enter()
           .append("circle")
@@ -294,7 +326,7 @@
             return projectionHPed([d.longitude, d.latitude])[1];
           })
           .attr("r", 5)
-          .attr("class", "show hourly-pedestrian")
+          .attr("class", "show daily-pedestrian")
           .style("fill", ({ count }) => count ? colorHPed(count) : color[1])
           .style("stroke", "none")
           .attr("fill-opacity", 0)
@@ -307,9 +339,13 @@
           .attr("fill-opacity", 1)
       };
 
-      animatePedestrian = (hour) => {
-        data = fullData.filter(item => new Date(parseInt(item.unix_time + '000')).getHours() === hour);
-        return updateCircles(data, "hourly-pedestrian");
+      animatePedestrian = (currentDay) => {
+        data = fullData.filter(item => {
+          const time = parseInt(item.unix_time + '000');
+          const currentTime = currentDay.getTime();
+          return time === currentTime;
+        });
+        return updateCircles(data, "daily-pedestrian");
       };
     });
 
@@ -317,35 +353,6 @@
       const max = d3.max(fullData, d => parseInt(d.count));
       const min = d3.min(fullData, d => parseInt(d.count));
       colorHPark.domain([max, min]);
-
-      // const legendPadding = 20;
-      //
-      // const yScale = d3.scaleOrdinal()
-      //   .domain(["Occupied", "Empty"])
-      //   .range([0, mapHeight - 2 * legendPadding]);
-      //
-      // const yAxis = d3.axisRight()
-      //   .scale(yScale)
-      //   .ticks(1);
-      //
-      // //Create Y axis
-      // svgParkLegend.append("g")
-      //   .attr("class", "y-axis-hourly")
-      //   .attr("height", mapHeight)
-      //   .attr("transform", "translate(30," + (legendPadding + 1) + ")")
-      //   .call(yAxis);
-      //
-      // svgParkLegend.append("rect")
-      //   .attr("width", 15)
-      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-      //   .attr("transform", "translate(10, " + legendPadding + ")")
-      //   .style("fill", color[0]);
-      //
-      // svgParkLegend.append("rect")
-      //   .attr("width", 15)
-      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-      //   .attr("transform", "translate(10, " + (legendPadding + (mapHeight - 2 * legendPadding + 2) / 2) + ")")
-      //   .style("fill", color[1]);
 
       const legendPadding = 20;
 
@@ -361,7 +368,7 @@
 
       //Create Y axis
       svgParkLegend.append("g")
-        .attr("class", "y-axis-hourly")
+        .attr("class", "y-axis-daily")
         .attr("height", mapHeight)
         .attr("transform", "translate(30," + (legendPadding + 1) + ")")
         .call(yAxis);
@@ -390,7 +397,7 @@
         .style("fill", "url(#linear-gradient)");
 
       const updateCircles = (data) => {
-        svgHPark.selectAll("circle.hourly-parking")
+        svgHPark.selectAll("circle.daily-parking")
           .attr("fill-opacity", 1)
           .transition()
           .duration(delay)
@@ -401,7 +408,7 @@
         // add circles to map
         svgHPark
           .append("g")
-          .selectAll("circle.hourly-parking")
+          .selectAll("circle.daily-parking")
           .data(data)
           .enter()
           .append("circle")
@@ -411,7 +418,7 @@
           .attr("cy", function (d) {
             return projectionHPark([d.longitude, d.latitude])[1];
           })
-          .attr("class", "show hourly-parking")
+          .attr("class", "show daily-parking")
           .attr("r", 3)
           .style("fill", ({ count }) => count ? colorHPark(count) : color[1])
           .style("stroke", "none")
@@ -422,9 +429,13 @@
           .attr("fill-opacity", 1)
       };
 
-      animatePark = (hour) => {
-        data = fullData.filter(item => new Date(parseInt(item.unix_time + '000')).getHours() === hour);
-        return updateCircles(data, "hourly-parking");
+      animatePark = (currentDay) => {
+        data = fullData.filter(item => {
+          const time = parseInt(item.unix_time + '000');
+          const currentTime = currentDay.getTime();
+          return time === currentTime;
+        });
+        return updateCircles(data, "daily-parking");
       };
 
       loadingElement.style.display = "none";

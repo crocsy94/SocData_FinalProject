@@ -82,4 +82,33 @@ text {
     font-weight: bold;
     padding-right: 80px;
     margin: 10px 0;
+    color: #5a5757;
+}
+
+#time-scale {
+    margin-top: 35px;
+}
+
+#time-scale > svg > g > g:not(:nth-child(2)):not(:nth-last-child(2)) > text {
+    display: none;
+}
+
+#time-scale > svg > g > g > text {
+    fill: #5a5757;
+}
+
+#time-scale > svg > g > g > line {
+    stroke: #5a5757;
+}
+
+#legend-daily-pedestrian > svg > g > path {
+    display: none;
+}
+
+#legend-daily-parking > svg > g > path {
+    display: none;
+}
+
+.dragged {
+    border: #5a5757;
 }

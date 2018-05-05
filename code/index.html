@@ -6,6 +6,19 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <script>
+    window.timeData = {
+      start: new Date(2017, 5, 9),
+      end: new Date(2017, 6, 16),
+      name: "Average usage"
+    };
+
+    window.updateDailyVisualization = (timeData) => {
+      window.timeData = timeData;
+      document.getElementById('daily-visualization').src += '';
+    }
+  </script>
 </head>
 <body>
   <div class="container">
@@ -16,7 +29,7 @@
       wake up and go to work. To see our results, play around with the visualizations below.
     </p>
     <div class="title">An average day...</div>
-    <iframe src="hourly_visualization.html" frameborder="0" class="hourly-maps"></iframe>
+    <iframe id="hourly-visualization" src="hourly_visualization.html" frameborder="0" class="hourly-maps"></iframe>
 
     <div class="title">Is it different on holidays?</div>
     <p>
@@ -24,14 +37,15 @@
       places. This correlates well with the pedestrian data since both of them are indications of people
       moving. Here is what we discovered by taking a look at year 2017.
     </p>
-    <iframe src="year_chart.html" frameborder="0" class="year_chart"></iframe>
+    <iframe id="year-chart" src="year_chart.html" frameborder="0" class="year_chart"></iframe>
 
     <div class="title">During a regular, uneventful period...</div>
     <p>
       In the currently selected period, no major event is taking place. Therefore the following visualizations show
       the average behaviour of Melbourne’s population.
     </p>
-    <!--<iframe src="" class=""></iframe>-->
+    <iframe id="daily-visualization" src="daily_visualization.html" frameborder="0"
+            class="daily_visualization"></iframe>
 
     <div class="title">Conclusion</div>
     <p>
