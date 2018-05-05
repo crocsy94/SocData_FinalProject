@@ -5,10 +5,11 @@
   <title>Second part</title>
   <link rel="stylesheet" href="./year_chart_styles.css">
   <script src="./d3.js"></script>
+  <link href="./fa/css/fontawesome-all.css" rel="stylesheet">
 </head>
 <body>
-  <div id="loading" class="container"><i class="fas fa-cog fa-spin fa-10x"></i></div>
-  <div id="chart" class="container"></div>
+  <div id="loading" class="container"><i class="fas fa-cog fa-spin fa-5x"></i></div>
+  <div id="chart" class="container" style="display: none"></div>
   <script>
     // selectedIndex contains the selected holiday's index, as they have been added to the rectangles array.
     const ORANGE = "#cc7200";
@@ -17,7 +18,10 @@
     const DARK_GREY = "#5a5757";
     const LIGHT_GREY = "#EBEBEB";
 
-    yearChartCsv = "../data/year_chart_data.csv";
+    yearChartCsv = "../data/output_pedestrian_and_parking_year_sum.csv";
+
+    const loadingDiv = document.getElementById("loading");
+    const chartDiv = document.getElementById("chart");
 
     // Width and height
     const w = 800;
@@ -27,30 +31,25 @@
 
     const dates = [
       {
-        start: new Date(2017, 1, 1),
-        end: new Date(2017, 3, 1),
-        name: "2017 Eastern"
+        start: new Date(2016, 0, 1),
+        end: new Date(2016, 1, 1),
+        name: "First month"
       },
       {
-        start: new Date(2017, 5, 9),
-        end: new Date(2017, 6, 16),
+        start: new Date(2016, 5, 9),
+        end: new Date(2016, 6, 16),
         name: "Average usage"
       },
       {
-        start: new Date(2017, 11, 3),
-        end: new Date(2017, 11, 27),
-        name: "2017 Christmas"
+        start: new Date(2016, 2, 15),
+        end: new Date(2016, 3, 15),
+        name: "Easter"
       },
       {
-        start: new Date(2017, 11, 29),
-        end: new Date(2017, 0, 15),
-        name: "2017 New year"
+        start: new Date(2016, 8, 15),
+        end: new Date(2016, 9, 15),
+        name: "School start"
       },
-      {
-        start: new Date(2018, 1, 24),
-        end: new Date(2018, 2, 15),
-        name: "2017 Eastern"
-      }
     ];
 
     function rgb2hex(rgb) {
@@ -71,16 +70,16 @@
     const formatLineTime = d3.timeFormat("%e %B");
 
     // Function for converting CSV values from strings to Dates and numbers
-    const rowConverter = ({ date, value, type }) => ({
-      date: new Date(parseInt(date)),
-      value: parseFloat(value),
-      type
+    const rowConverter = ({ unix_time, count_pedestrian, count_parking }) => ({
+      date: new Date(parseFloat(unix_time + "000")),
+      pedestrians: parseInt(count_pedestrian),
+      parking: parseInt(count_parking)
     });
 
     // Load in data
     d3.csv(yearChartCsv, rowConverter, data => {
-      const data_parking = data.filter(d => d.type === "parking");
-      const data_pedestrian = data.filter(d => d.type === "pedestrian");
+      const data_parking = data.map(({ date, pedestrians }) => ({ date, value: pedestrians }));
+      const data_pedestrian = data.map(({ date, parking }) => ({ date, value: parking }));
 
       // Create scale functions
       xScale = d3.scaleTime()
@@ -99,22 +98,21 @@
         .ticks(12)
         .tickFormat(formatTime);
 
-      yAxisLeft = createYAxis(yScaleLeft, "left");
-      yAxisRight = createYAxis(yScaleRight, "right");
+      yAxisLeft = createYAxis(yScaleLeft, "left")
+        .ticks(2)
+        .tickFormat(d => d / 1000 + " k");
+      yAxisRight = createYAxis(yScaleRight, "right")
+        .tickFormat(d => d / 1000 + " k");
 
       // Define line generator
       lineLeft = createLine(xScale, yScaleLeft);
       lineRight = createLine(xScale, yScaleRight);
 
-      const container = d3.select("body")
-        .append("div")
-        .attr("class", "container")
-        .style("position", "relative");
-
+      const container = d3.select(chartDiv);
       // Define the div for the tooltip for the rectangles
       const rect_tooltip = container
         .append("div")
-        .attr("class", "rect_tooltip")
+        .attr("class", "rect-tooltip")
         .style("opacity", 0);
 
       // Create SVG element
@@ -138,10 +136,12 @@
       addAxis(svg, "right_axis", `translate(${w - padding_horizontal}, 0)`, yAxisRight);
 
       // Add labels
-      addText(svg, padding_horizontal / 2 - 20, h / 2 - 10, "Daily average parking");
-      addText(svg, padding_horizontal / 2, h / 2 - 10, "spot usage");
+      addText(svg, 10, h / 2 - 10, "Daily average parking");
+      addText(svg, 25, h / 2 - 10, "spot usage");
       addText(svg, w - padding_horizontal / 2 + 7, h / 2 - 10, "Pedestrians / hour");
 
+      loadingDiv.style.display = "none";
+      chartDiv.style.display = "inline";
     });
 
     function createYScale(data) {
@@ -241,7 +241,7 @@
             .duration(300)
             .style("fill", DARK_GREY);
           selected = rect;
-          console.log(dates[i]);
+
           window.parent.updateDailyVisualization(dates[i]);
         } else {
           if (rgb2hex(rectangle.style("fill")) === DARK_GREY) {

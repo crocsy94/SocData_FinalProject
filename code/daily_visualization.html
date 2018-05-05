@@ -9,11 +9,9 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="./fa/css/fontawesome-all.css" rel="stylesheet">
-
 </head>
-
 <body>
-  <div id="loading" class="container"><i class="fas fa-cog fa-spin fa-10x"></i></div>
+  <div id="loading" class="container"><i class="fas fa-cog fa-spin fa-5x"></i></div>
   <table id="visualization" class="container" style="display: none">
     <tr>
       <td>
@@ -31,10 +29,11 @@
         </div>
       </td>
       <td>
+        <div class="current-day" id="current-day">day</div>
         <div class="map">
           <div class="inline" id="time-scale"></div>
-          <div class="inline" id="animate-text">Animate</div>
         </div>
+        <div id="animate-text">Animate</div>
       </td>
     </tr>
   </table>
@@ -44,11 +43,28 @@
 
   let interval = window.parent.timeData;
 
+  // let interval = {
+  //   start: new Date(2017, 5, 9),
+  //   end: new Date(2017, 6, 16),
+  //   name: "Average usage"
+  // };
+
+  interval.days = Math.ceil((interval.end - interval.start) / (1000 * 60 * 60 * 24));
+  let currentDay = interval.start;
+
+
   const pedestrianCsv = "../data/output_pedestrian_year.csv";
   const parkingCsv = "../data/output_parking_year.csv";
 
   const loadingElement = document.getElementById("loading");
   const visualizationElement = document.getElementById("visualization");
+  const currentDayElement = document.getElementById("current-day");
+
+  const updateDateText = date => {
+    currentDayElement.innerText = date.toLocaleString("en-UK", {day:"2-digit" ,month: "long"});
+  };
+  updateDateText(currentDay);
+
 
   // Ids
   const idHPed = "map-daily-pedestrian";
@@ -68,22 +84,19 @@
   const mapHeight = 350;
 
   const delay = 1000;
-  const width = 200;
-  const height = 200;
 
-  let currentDay = interval.start;
 
   /*===============================================================================*/
   /*Animation*/
 
-  interval.days = Math.ceil((interval.end - interval.start) / (1000 * 60 * 60 * 24));
   const axisLabels = Array.apply(0, new Array(interval.days)).map(() => " ");
   axisLabels[0] = interval.start;
   axisLabels[axisLabels.length - 1] = interval.end;
 
   const scalePadding = 8;
 
-  const axisHeight = mapHeight - 20;
+  const timeScaleHeight = mapHeight - 10;
+  const axisHeight = timeScaleHeight - 20;
 
   const timeScale = d3.scaleTime()
     .range([axisHeight, 0])
@@ -93,33 +106,34 @@
   const svgTimeScaleContainer = d3.select(document.getElementById(idTimeScale))
     .append("svg")
     .attr("width", "100")
-    .attr("height", mapHeight);
+    .attr("height", timeScaleHeight);
 
   const timeAxis = d3.axisRight(timeScale)
     .ticks(interval.days)
-    .tickFormat(d3.timeFormat("%d %B"))
+    .tickFormat(d3.timeFormat("%B %d"))
     .tickPadding(10);
 
   //Create Y axis
   const svgTimeScale = svgTimeScaleContainer.append("g")
     .attr("class", "y-axis-daily")
-    .attr("height", mapHeight)
+    .attr("height", timeScaleHeight)
     .attr("transform", "translate(30, 10)")
     .call(timeAxis);
 
 
-  var scaleRect = svgTimeScale.append("rect")
+  const scaleRect = svgTimeScale.append("rect")
     .attr("x", -15)
     .attr("y", axisHeight - scalePadding)
     .attr("width", 30)
     .attr("height", 15)
     .attr("fill", color[0])
-    .style("cursor", "ew-resize")
+    .style("cursor", "pointer")
     .style('fill', color[0])
     .call(d3.drag()
       .on("start", dragStarted)
       .on("drag", dragged)
       .on("end", dragEnded));
+
 
   function dragStarted() {
     if (isUnderAnimation) return;
@@ -134,7 +148,9 @@
 
     let yTime = new Date(timeScale.invert(y));
 
-    yTimeRounded = new Date(yTime.getFullYear(), yTime.getMonth(), yTime.getDate());
+    const yTimeRounded = new Date(yTime.getFullYear(), yTime.getMonth(), yTime.getDate());
+
+    updateDateText(yTimeRounded);
     d3.select(this).attr("y", timeScale(yTimeRounded) - scalePadding)
   }
 
@@ -160,22 +176,18 @@
       isUnderAnimation = false;
       return true;
     }
-
-    // text
-    //   .text((hour < 10 ? "0" + (hour) : (hour)) + ":00")
-    //   .attr("class", "doughnut-hour");
-
     setTimeout(() => {
+      currentDay = new Date(currentDay.getTime() + 1000 * 60 * 60 * 24);
+      updateDateText(currentDay);
+
       animatePedestrian(currentDay);
       animatePark(currentDay);
-
-      currentDay = new Date(currentDay.getTime() + 1000 * 60 * 60 * 24);
-      console.log(currentDay)
-
       scaleRect.attr("y", timeScale(currentDay) - scalePadding);
 
+
+
       return animateTime()
-    }, delay);
+    }, delay/2);
   };
 
 
@@ -268,7 +280,7 @@
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([Math.ceil(max / 1000) * 1000, 0]);
+        .tickValues([28000, 0]);
 
       //Create Y axis
       svgPedLegend.append("g")
@@ -364,7 +376,7 @@
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([max, 0]);
+        .tickValues([600, 0]);
 
       //Create Y axis
       svgParkLegend.append("g")

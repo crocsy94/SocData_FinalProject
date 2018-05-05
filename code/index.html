@@ -9,14 +9,24 @@
 
   <script>
     window.timeData = {
-      start: new Date(2017, 5, 9),
-      end: new Date(2017, 6, 16),
+      start: new Date(2016, 5, 9),
+      end: new Date(2016, 6, 16),
       name: "Average usage"
+    };
+
+    const descriptions = {
+      "First month": "",
+      "Average usage": "In the currently selected period, no major event is taking place. Therefore the following" +
+      " visualizations show the average behaviour of Melbourne’s population.",
+      "Easter": "",
+      "School start": ""
     };
 
     window.updateDailyVisualization = (timeData) => {
       window.timeData = timeData;
       document.getElementById('daily-visualization').src += '';
+      document.getElementById('period-title').innerText = timeData.name;
+      document.getElementById('period-description').innerText = descriptions[timeData.name];
     }
   </script>
 </head>
@@ -35,12 +45,12 @@
     <p>
       To figure out, instead of the parking places, we analysed the frequency of people leaving parking
       places. This correlates well with the pedestrian data since both of them are indications of people
-      moving. Here is what we discovered by taking a look at year 2017.
+      moving. Here is what we discovered by taking a look at year 2016.
     </p>
     <iframe id="year-chart" src="year_chart.html" frameborder="0" class="year_chart"></iframe>
 
-    <div class="title">During a regular, uneventful period...</div>
-    <p>
+    <div id="period-title" class="title">During a regular, uneventful period...</div>
+    <p id="period-description">
       In the currently selected period, no major event is taking place. Therefore the following visualizations show
       the average behaviour of Melbourne’s population.
     </p>

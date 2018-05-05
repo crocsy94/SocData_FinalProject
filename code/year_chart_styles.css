@@ -1,18 +1,18 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #2B2A29;
     margin: auto;
     width: 850px;
 }
 
 .right_axis text {
-    fill: #EF7F1A;
+    fill: #cc7200;
     font-size: 14px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .right_axis line {
-    stroke: #EF7F1A;
+    stroke: #cc7200;
 }
 
 .right_axis path {
@@ -22,7 +22,7 @@ body {
 .left_axis text {
     fill: #2B2A29;
     font-size: 14px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .left_axis line {
@@ -36,7 +36,7 @@ body {
 .x_axis text {
     fill: #2B2A29;
     font-size: 14px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .x_axis line {
@@ -48,18 +48,24 @@ body {
     stroke-width: 2px;
 }
 
-div.rect_tooltip {
+.rect-tooltip {
     position: absolute;
     text-align: center;
     padding: 4px;
     width: 120px;
     height: 25px;
-    background: #C0C0C0;
     border: 0;
-    border-radius: 4px;
+    color: #cc7200;
+    font-weight: bold;
 }
 
 .container {
-    margin-top: 40px;
+    top: 40px;
     position: relative;
+    text-align: center;
+}
+
+#loading {
+    padding-top: 10px;
+    color: #5a5757;
 }
