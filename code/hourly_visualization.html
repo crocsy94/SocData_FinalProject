@@ -57,6 +57,7 @@
   let animatePedestrian;
 
   const color = ["#cc7200", "#ffffe5"];
+  const colorGrey = ["#5a5757", "#ffffe5"];
   const doughnutColor = [color[0], "#dadada"];
 
   const delay = 1000;
@@ -214,8 +215,13 @@
   const { projection: projectionHPed, path: pathHPed, colorScale: colorHPed, svg_map: svgHPed } =
     setupMap(idHPed);
 
-  const { projection: projectionHPark, path: pathHPark, colorScale: colorHPark, svg_map: svgHPark } =
+  const { projection: projectionHPark, path: pathHPark, colorScale: _colorHPark, svg_map: svgHPark } =
     setupMap(idHPark);
+
+  const colorHPark = d3.scaleLinear()
+    .range(colorGrey)
+    .interpolate(d3.interpolateHcl)
+    .clamp(true);
   //Load in GeoJSON data
 
   d3.json("melbourne.geojson", function (json) {
@@ -385,7 +391,7 @@
         .call(yAxis);
 
       const linearGradient = svgHPark.append("linearGradient")
-        .attr("id", "linear-gradient")
+        .attr("id", "linear-gradient-park")
         .attr("x1", 0)
         .attr("x2", 0)
         .attr("y1", 0)
@@ -394,18 +400,18 @@
       //Set the color for the start (100%)
       linearGradient.append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", color[0]);
+        .attr("stop-color", colorGrey[0]);
 
       //Set the color for the end (0%)
       linearGradient.append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", color[1]);
+        .attr("stop-color", colorGrey[1]);
 
       svgParkLegend.append("rect")
         .attr("width", 15)
         .attr("height", mapHeight - 2 * legendPadding + 2)
         .attr("transform", "translate(10, " + legendPadding + ")")
-        .style("fill", "url(#linear-gradient)");
+        .style("fill", "url(\"#linear-gradient-park\")");
 
       const updateCircles = (data) => {
         svgHPark.selectAll("circle.hourly-parking")
