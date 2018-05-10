@@ -173,7 +173,8 @@
       return true;
     }
     setTimeout(() => {
-      currentDay = new Date(currentDay.getTime() + 1000 * 60 * 60 * 24);
+      tmpDate = new Date(currentDay.getTime() + 1000 * 60 * 60 * 24);
+      currentDay = new Date(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate());
       updateDateText(currentDay);
 
       animatePedestrian(currentDay);
@@ -343,8 +344,8 @@
       };
 
       animatePedestrian = (currentDay) => {
+        console.log(currentDay, currentDay.getTime())
         data = fullData.filter(item => {
-
           const time = parseInt(item.unix_time + '000');
           const currentTime = currentDay.getTime();
           return time === currentTime;
@@ -405,12 +406,7 @@
 
       const updateCircles = (data) => {
         svgHPark.selectAll("circle")
-          .attr("fill-opacity", 1)
-          .transition()
-          .duration(delay)
-          //change fill and stroke opacity to avoid CSS conflicts
-          .attr("fill-opacity", 0)
-          .remove(); //remove after transitions are complete
+          .remove();
 
         // add circles to map
         svgHPark
@@ -427,13 +423,7 @@
           })
           .attr("class", "show")
           .attr("r", 3)
-          .style("fill", ({ count }) => count ? colorHPark(count) : color[1])
-          .style("stroke", "none")
-          .attr("fill-opacity", 0)
-          .transition()
-          .duration(delay)
-          //change fill and stroke opacity to avoid CSS conflicts
-          .attr("fill-opacity", 1)
+          .style("fill", ({ count }) => count ? colorHPark(count) : color[1]);
       };
 
       animatePark = (currentDay) => {
