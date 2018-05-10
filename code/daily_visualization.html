@@ -200,6 +200,24 @@
   /*===============================================================*/
   /*Maps*/
 
+  const tooltips = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip");
+
+  const tooltipContent = tooltips
+    .append("div")
+    .attr("class", "tooltip-content");
+
+  const tooltipLine1 = tooltipContent
+    .append("div")
+    .attr("class", "tooltip-position")
+    .text("a simple tooltip");
+
+  const tooltipLine2 = tooltipContent
+    .append("div")
+    .attr("class", "tooltip-count")
+    .text("a simple tooltip");
+
   const svgPedLegend = d3.select(document.getElementById(idHPedLegend))
     .append("svg")
     .attr("width", "80")
@@ -314,16 +332,20 @@
 
 
       const updateCircles = (data) => {
-        svgHPed.selectAll("circle")
+        svgHPed.selectAll("circle.hourly-pedestrian")
           .attr("fill-opacity", 1)
           .transition()
-          .duration(delay)
+          .duration(delay * 0.6)
+          .attr("fill-opacity", 0.7)
+          .transition()
+          .duration(delay * 0.4)
           .attr("fill-opacity", 0)
+          .remove();
 
         // add circles to map
         svgHPed
           .append("g")
-          .selectAll("circle")
+          .selectAll("circle.hourly-pedestrian")
           .data(data)
           .enter()
           .append("circle")
@@ -334,17 +356,45 @@
             return projectionHPed([d.longitude, d.latitude])[1];
           })
           .attr("r", 5)
-          .attr("class", "show")
+          .attr("class", "show hourly-pedestrian")
           .style("fill", ({ count }) => count ? colorHPed(count) : color[1])
           .style("stroke", "none")
           .attr("fill-opacity", 0)
           .transition()
-          .duration(delay)
-          .attr("fill-opacity", 1)
+          .duration(delay * 0.4)
+          .attr("fill-opacity", 0.7)
+          .transition()
+          .duration(delay * 0.6)
+          //change fill and stroke opacity to avoid CSS conflicts
+          .attr("fill-opacity", 1);
+
+        d3.selectAll("circle.hourly-pedestrian")
+          .on("mouseover", function (d) {
+            tooltips
+              .style("top", (d3.event.pageY + 5) + "px")
+              .style("left", (d3.event.pageX + 5) + "px");
+
+            tooltipLine1.text(d.sensor_description);
+            tooltipLine2.text(`Count: ${parseInt(d.count)}`);
+            tooltips.style("display", "inline");
+
+            d3.select(this)
+              .style("stroke", "#5a5757")
+              .attr("r", 7);
+          })
+          .on("mousemove", () => tooltips
+            .style("top", (d3.event.pageY + 5) + "px")
+            .style("left", (d3.event.pageX + 5) + "px"))
+          .on("mouseout", function () {
+            tooltips.style("display", "none");
+            d3.select(this)
+              .style("stroke", "none")
+              .attr("r", 5);
+          });
+
       };
 
       animatePedestrian = (currentDay) => {
-        console.log(currentDay, currentDay.getTime())
         data = fullData.filter(item => {
           const time = parseInt(item.unix_time + '000');
           const currentTime = currentDay.getTime();

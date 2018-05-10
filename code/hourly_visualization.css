@@ -82,3 +82,27 @@ text {
     padding-right: 80px;
     margin: 10px 0;
 }
+
+.tooltip-content{
+    background: white;
+    padding: 4px;
+}
+
+.tooltip {
+    position: absolute;
+    z-index: 10;
+    display: none;
+    background: #cc7200;
+    padding: 2px;
+}
+
+.tooltip-position {
+    color: #cc7200;
+    font-weight: bold;
+}
+
+.tooltip-count {
+    color: #5a5757;
+    text-align: right;
+    font-weight: bold;
+}

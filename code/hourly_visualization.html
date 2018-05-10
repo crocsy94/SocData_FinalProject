@@ -193,12 +193,31 @@
     return { projection, path, colorScale, svg_map, w_map };
   };
 
+  const tooltips = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip");
+
+  const tooltipContent = tooltips
+    .append("div")
+    .attr("class", "tooltip-content");
+
+  const tooltipLine1 = tooltipContent
+    .append("div")
+    .attr("class", "tooltip-position")
+    .text("a simple tooltip");
+
+  const tooltipLine2 = tooltipContent
+    .append("div")
+    .attr("class", "tooltip-count")
+    .text("a simple tooltip");
+
   const { projection: projectionHPed, path: pathHPed, colorScale: colorHPed, svg_map: svgHPed } =
     setupMap(idHPed);
 
   const { projection: projectionHPark, path: pathHPark, colorScale: colorHPark, svg_map: svgHPark } =
     setupMap(idHPark);
   //Load in GeoJSON data
+
   d3.json("melbourne.geojson", function (json) {
 
     //Bind data and create one path per GeoJSON feature
@@ -305,7 +324,32 @@
           .transition()
           .duration(delay * 0.6)
           //change fill and stroke opacity to avoid CSS conflicts
-          .attr("fill-opacity", 1)
+          .attr("fill-opacity", 1);
+
+        d3.selectAll("circle.hourly-pedestrian")
+          .on("mouseover", function (d) {
+            tooltips
+              .style("top", (d3.event.pageY + 5) + "px")
+              .style("left", (d3.event.pageX + 5) + "px");
+
+            tooltipLine1.text(d.sensor_description);
+            tooltipLine2.text(`Count: ${d.count}`);
+            tooltips.style("display", "inline");
+
+            d3.select(this)
+              .style("stroke", "#5a5757")
+              .attr("r", 7);
+          })
+          .on("mousemove", () => tooltips
+            .style("top", (d3.event.pageY + 5) + "px")
+            .style("left", (d3.event.pageX + 5) + "px"))
+          .on("mouseout", function () {
+            tooltips.style("display", "none");
+            d3.select(this)
+              .style("stroke", "none")
+              .attr("r", 5);
+          });
+
       };
 
       animatePedestrian = (hour) => {
