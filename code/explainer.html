@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Behind the scene</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container" style="text-align:justify">
+    <h2>Motivation</h2>
+
+    We chose to work with open city data about Melbourne, Australia. The reason why we chose this city is based mainly on a personal
+    interest. Some of the team members gonna spend a semester at this city as exchange students. We thought this is a good
+    opportunity to learn something about the city before moving there. We selected 4 dataset from the australian government's
+    website, two about parking spots location and availability and two about pedestrian traffic. The main dataset don't include
+    location attributes, they are using sensor id's only, so we looked for additional dataset where the exact locations are
+    provided. The link to the four dataset can be found on the main page. Our goal was to provide an easily understandable
+    visualization about the traffic of Melbourne. We though that giving a simple showcase about an average day would be nice
+    as an introduction. Than we wanted to give an overview to the end user about our data, and offer the possibility for
+    the user to dig deeper in the outstanding patterns.
+
+    <h2>Basic Statistics</h2>
+    Our Datasets:
+    <ul>
+      <li>Pedestrian sensor locations, 52 rows, 10 columns (each row represents a sensor)</li>
+      <li>Pedestrian volume, 2M rows, 10 columns (each row represents a measurement by a sensor)</li>
+      <li>Parking sensor location, 3271 row, 6 columns (each row represents a sensor)</li>
+      <li>Parking sensor data, 34M rows, 13 columns (each row represents a measurement by a sensor)</li>
+    </ul>
+
+    After downloading the 4 required dataset we performed a comprehensive pre-processing. For this we wanted to use python's
+    famous library for time series data called pandas. Our goal was to merge the separate dataset for each category into
+    smaller one, which will be suitable for the visualization. Quite early it turned out that pandas is not the best tool
+    for us, because some of our dataset contains over 30 million rows. The dataset for the pedestrian sensors and measurements,
+    and the files with the parking data were imported into two SQLite database, one for every pedestrian data and one for
+    every parking data. From now on we worked with these data separately. The questions emerged during the explanatory data
+    analysis and design were the followings:
+
+    <ul>
+      <li>what attribute to keep</li>
+      <li>how many and what type of CSVs are necessary</li>
+      <li>what resolution we need in order to have a meaningful visualization</li>
+    </ul>
+
+    Using SQLite database allowed us to write the python code in a very memory effective way. We created 5 CSV files in total,
+    two for the introduction visualization, because we needed the data in an hourly resolution; one for the yearly overview
+    where the two category got merged into one CSV and we deleted the location information here because it was not necessary
+    for this plot; and finally two for the detailed views where the user can explore different periods of the year. We decided
+    to have multiple smaller CSV files instead of having one big in order to achieve a faster loading time, continuous visualization
+    and to get rid of the unwanted lags. These files also contain only the information which was necessary during the preprocessing
+    and the information which was using in the visualizations.
+
+    <h2>Genre</h2>
+
+    Due to the fact that we offer several ways for the user to interact with the visualization through starting animations, and
+    time-manipulations, while still having a definite ordering of screens, we would say that our story is a hybrid between
+    user and author driven. We always provide introductions to the data sets, and tooltips on hovering as well as several
+    ways to interact. Tooltips are only provided for the pedestrian dataset, there was no meaningful location name for the
+    parking sensors. Assessing all of these together our genre is thought to be a mixture of Magazine style with annotated
+    chart elements.
+    <br> We used timeline sliders to structure the sub-visualizations. The user can move the little square located on the right
+    side of the maps to select a custom date and observe the datapoints. Throughout the main page we are using the same colors
+    in the charts. The ordering of the page, as we mentioned before, is a linear ordering, the user starts with an introduction,
+    than can observe an overview and finally check details on demand about different periods of the year. To communicate
+    the whole message we are providing textual information as well in the form of introductory texts and summaries.
+
+    <h2>Visualization</h2>
+
+    We think that this story cannot be told without maps and timelines, so our primary objective has always been to have a map
+    where interesting patterns can be observed along the time. This is why we looked for additional datasets, to be able
+    to pair each sensor measurement to a location. Plotting the sensor location on the map, and coloring them based on the
+    traffic measured by that sensor is the best way to visualize traffic through the time. The timeline's main purpose is
+    to provide an overview, to showcase patterns over the year. Some of them are quite obvious, but some of them needs further
+    explanation, which can be accessed by clicking on the timeline.
+
+    <h2>Discussion</h2>
+
+    During the data preprocessing we spent a lot of time with our biggest dataset, the information about the parking sensors.
+    We tried several approaches, most of them failed because of heave memory usage. However spending extra time on preprocessing,
+    and splitting the data into several CSS files resulted in a fast visualization. We haven't calculated with the population
+    density during this project, because the sensors are located in the Central Business District of Melbourne, where mostly
+    offices and shopping centers can be found. As a further improvement the parking spots could be grouped together based
+    on proximity, to have a less crowded map. The reason we are missing tooltips on these maps about parking data is because
+    we are missing some meaningful location. It would be nice to have something similar to the ones we have for the pedestrian
+    datasets.
+
+    <h2>Contribution</h2>
+
+    <div style="display: flex; justify-content: center;">
+      <table>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Design</td>
+          <td>Imre Nagy</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Explanatory data analysis</td>
+          <td>Horvath Daniel, Lorant Gulyas</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Data preprocessing</td>
+          <td>Lorant Gulyas</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Introduction part (average day in Melbourne)</td>
+          <td>Horvath Daniel</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Timeline of 2016</td>
+          <td>Imre Nagy</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Further details about some periods of the year</td>
+          <td>Horvath Daniel</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Conclusion</td>
+          <td>Lorant Gulyas</td>
+        </tr>
+        <tr>
+          <td style="display: flex; justify-content: flex-end; padding-right: 5px">Behind the scene page</td>
+          <td>Imre Nagy, Horvath Daniel, Lorant Gulyas</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>

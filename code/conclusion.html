@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>D3: Test of formatted axis values</title>
+  <script type="text/javascript" src="./d3.js"></script>
+  <style type="text/css">
+    /* No style rules here yet */
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+
+    const ORANGE = "#cc7200";
+    const BLACK = "#373634";
+
+    yearChartCsv = "../data/output_pedestrian_and_parking_year_sum.csv";
+
+    //Width and height
+    var w = 800;
+    var h = 400;
+    var padding = 50;
+
+    // obtained from preprocessing
+    const avg_ped = 204275.2;
+    const avg_par = 93275.11;
+    const dev_ped = 15375.8;
+    const dev_par = 13810.42;
+
+    const rowConverter = ({ unix_time, count_pedestrian, count_parking }) => ([
+      (count_pedestrian - avg_ped)/dev_ped,
+      (count_parking - avg_par)/dev_par
+    ]);
+
+    d3.csv(yearChartCsv, rowConverter, function (dataset) {
+      console.log(dataset)
+
+      //Create scale functions
+      var xScale = d3.scaleLinear()
+        .domain([d3.min(dataset, function (d) { return d[0]; }), d3.max(dataset, function (d) { return d[0]; })])
+        .range([padding, w - padding * 2]);
+
+      var yScale = d3.scaleLinear()
+        .domain([d3.min(dataset, function (d) { return d[1]; }), d3.max(dataset, function (d) { return d[1]; })])
+        .range([h - padding, padding]);
+
+
+      //Define X axis
+      var xAxis = d3.axisBottom()
+        .scale(xScale)
+        .ticks(5);
+
+      //Define Y axis
+      var yAxis = d3.axisLeft()
+        .scale(yScale)
+        .ticks(5);
+
+      //Create SVG element
+      var svg = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+      //Create circles
+      svg.selectAll("circle")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d) {
+          return xScale(d[0]);
+        })
+        .attr("cy", function (d) {
+          return yScale(d[1]);
+        })
+        .attr("r", 2);
+
+      //Create X axis
+      svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + (h - padding) + ")")
+        .call(xAxis);
+
+      //Create Y axis
+      svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+
+
+        
+    });
+
+  </script>
+</body>
+
+</html>
