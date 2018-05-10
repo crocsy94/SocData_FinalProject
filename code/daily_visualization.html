@@ -229,7 +229,8 @@
     //Define quantize scale to sort data values into buckets of color
     const colorScale = d3.scaleLinear()
       .range(color)
-      .interpolate(d3.interpolateHcl);
+      .interpolate(d3.interpolateHcl)
+      .clamp(true);
 
     return { projection, path, colorScale, svg_map, w_map };
   };
@@ -263,7 +264,7 @@
 
     d3.csv(pedestrianCsv, function (fullData) {
 
-      const max = d3.max(fullData, d => parseInt(d.count));
+      const max = d3.max(fullData, d => parseInt(d.count)) / 2;
       const min = d3.min(fullData, d => parseInt(d.count));
 
       colorHPed.domain([max, min]);
@@ -273,12 +274,12 @@
       const yScale = d3.scaleLinear()
         .domain([max, min])
         .range([0, mapHeight - 2 * legendPadding])
-        .nice();
+        .clamp(true);
 
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([28000, 0]);
+        .tickValues([14000, 0]);
 
       //Create Y axis
       svgPedLegend.append("g")
@@ -312,20 +313,16 @@
 
 
       const updateCircles = (data) => {
-        svgHPed.selectAll("circle.daily-pedestrian")
+        svgHPed.selectAll("circle")
           .attr("fill-opacity", 1)
           .transition()
-          .duration(delay * 0.6)
-          .attr("fill-opacity", 0.7)
-          .transition()
-          .duration(delay * 0.4)
+          .duration(delay)
           .attr("fill-opacity", 0)
-          .remove();
 
         // add circles to map
         svgHPed
           .append("g")
-          .selectAll("circle.daily-pedestrian")
+          .selectAll("circle")
           .data(data)
           .enter()
           .append("circle")
@@ -336,16 +333,12 @@
             return projectionHPed([d.longitude, d.latitude])[1];
           })
           .attr("r", 5)
-          .attr("class", "show daily-pedestrian")
+          .attr("class", "show")
           .style("fill", ({ count }) => count ? colorHPed(count) : color[1])
           .style("stroke", "none")
           .attr("fill-opacity", 0)
           .transition()
-          .duration(delay * 0.4)
-          .attr("fill-opacity", 0.7)
-          .transition()
-          .duration(delay * 0.6)
-          //change fill and stroke opacity to avoid CSS conflicts
+          .duration(delay)
           .attr("fill-opacity", 1)
       };
 
@@ -356,15 +349,16 @@
           const currentTime = currentDay.getTime();
           return time === currentTime;
         });
-        return updateCircles(data, "daily-pedestrian");
+        return updateCircles(data);
       };
 
       animatePedestrian(currentDay);
     });
 
     d3.csv(parkingCsv, function (fullData) {
-      const max = d3.max(fullData, d => parseInt(d.count));
+      const max = d3.max(fullData, d => parseInt(d.count)) / 4;
       const min = d3.min(fullData, d => parseInt(d.count));
+
       colorHPark.domain([max, min]);
 
       const legendPadding = 20;
@@ -377,7 +371,7 @@
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([600, 0]);
+        .tickValues([160, 0]);
 
       //Create Y axis
       svgParkLegend.append("g")
@@ -410,7 +404,7 @@
         .style("fill", "url(#linear-gradient)");
 
       const updateCircles = (data) => {
-        svgHPark.selectAll("circle.daily-parking")
+        svgHPark.selectAll("circle")
           .attr("fill-opacity", 1)
           .transition()
           .duration(delay)
@@ -421,7 +415,7 @@
         // add circles to map
         svgHPark
           .append("g")
-          .selectAll("circle.daily-parking")
+          .selectAll("circle")
           .data(data)
           .enter()
           .append("circle")
@@ -431,7 +425,7 @@
           .attr("cy", function (d) {
             return projectionHPark([d.longitude, d.latitude])[1];
           })
-          .attr("class", "show daily-parking")
+          .attr("class", "show")
           .attr("r", 3)
           .style("fill", ({ count }) => count ? colorHPark(count) : color[1])
           .style("stroke", "none")
@@ -448,7 +442,7 @@
           const currentTime = currentDay.getTime();
           return time === currentTime;
         });
-        return updateCircles(data, "daily-parking");
+        return updateCircles(data);
       };
 
       animatePark(currentDay);

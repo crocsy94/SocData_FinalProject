@@ -187,7 +187,8 @@
     //Define quantize scale to sort data values into buckets of color
     const colorScale = d3.scaleLinear()
       .range(color)
-      .interpolate(d3.interpolateHcl);
+      .interpolate(d3.interpolateHcl)
+      .clamp(true);
 
     return { projection, path, colorScale, svg_map, w_map };
   };
@@ -221,7 +222,7 @@
 
     d3.csv(pedestrianCsv, function (fullData) {
 
-      const max = d3.max(fullData, d => parseInt(d.count));
+      const max = d3.max(fullData, d => parseInt(d.count)) / 4;
       const min = d3.min(fullData, d => parseInt(d.count));
 
       colorHPed.domain([max, min]);
@@ -236,7 +237,7 @@
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([Math.ceil(max / 1000) * 1000, 0]);
+        .tickValues([1600, 0]);
 
       //Create Y axis
       svgPedLegend.append("g")
@@ -314,7 +315,7 @@
     });
 
     d3.csv(parkingCsv, function (fullData) {
-      const max = d3.max(fullData, d => parseInt(d.count));
+      const max = d3.max(fullData, d => parseInt(d.count)) / 4;
       const min = d3.min(fullData, d => parseInt(d.count));
       colorHPark.domain([max, min]);
 
@@ -328,7 +329,7 @@
       const yAxis = d3.axisRight()
         .scale(yScale)
         .ticks(1)
-        .tickValues([max, 0]);
+        .tickValues([7, 1]);
 
       //Create Y axis
       svgParkLegend.append("g")
