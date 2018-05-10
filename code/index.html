@@ -11,16 +11,25 @@
     window.timeData = {
       start: new Date(2016, 5, 9),
       end: new Date(2016, 6, 16),
-      name: "Average usage"
+      name: "Average period"
     };
 
     const descriptions = {
-      "Start of year": "Start",
-      "Easter": "Easter",
-      "Average usage": "In the currently selected period, no major event is taking place. Therefore the following" +
-      " visualizations show the average behaviour of Melbourne’s population.",
-      "Autumn": "Autumn",
-      "Winter holiday": "Winter"
+      "Start of year": "The year of 2016 starts quite slowly, at the first few days the traffic is barely noticable in downtown." +
+      " This is mainly because of the previously mentioned fact, that the sensors are located in the CBD, and the first few days of the year" +
+      " are part of the Christmas and NYE holiday. Some odd variation can be seen at the end of January too. The 26th is the Austalia day, which is " +
+      "a national holiday in Australia.",
+      "Easter": "This period in Melbourne is full of small festivals, the whole period is called the Autumn Fest. The Australian and " +
+      " New Zealand Army Corp Day was held also in April.",
+      "Average period": "In the currently selected period, no major event is taking place. Therefore the following" +
+      " visualizations show the average behavior of Melbourne’s population.",
+      "Spring": "The spring period looks almost the same as an average period. The number of parkings occuring in this period is slightly decreasing. " +
+      "Maybe this is due to the weather getting better :) ",
+      "Summer": "This period was very surprising for us. The number of parkings in this period is the highest in the year. " +
+      "At first we expected a lower number both for the pedestrians and for the cars because of the summer holiday getting started. " +
+      "But we also have to mention that this is the Christmas period, people are going for shopping tours, getting presents and probably " +
+      "it is more comfortable if you do it by a car. After the 24th of December there is barely anybody in downtown, which is quite understandable, " +
+      "no one wants to spend Christmas holidays in a business district."
     };
 
     window.updateDailyVisualization = (timeData) => {
@@ -44,9 +53,16 @@
 
     <div class="title">Is it different on holidays?</div>
     <p>
-      To figure out, instead of the parking places, we analysed the frequency of people leaving parking
-      places. This correlates well with the pedestrian data since both of them are indications of people
-      moving. Here is what we discovered by taking a look at year 2016.
+      To figure out this question, we widened our scope for the year of 2016. 
+      The parking dataset contains information about which parking bay was occupied in what time period.
+      We analysed the frequency of people leaving parking places for each day. The chart below displays 
+      the average number of parking bay usage for each day as well as the average number of citizens counted 
+      by a sensor in downtown. The two dataset correlates well with each other, the numbers are quite low 
+      during the weekends for both the parking and pedestrian data. It should be noted that the sensors are 
+      mainly located in the Central Business District of Melbourne, where the number of households are barely 
+      mentionable and only offices and shopping centers can be found. Some odd patterns can be noticed at 
+      the beginning of the year, somewhere around April and at the end of the year. Click on the chart to 
+      gain further insight about these periods.
     </p>
     <iframe id="year-chart" src="year_chart.html" frameborder="0" class="year_chart"></iframe>
 
@@ -61,7 +77,7 @@
     <div class="title">Conclusion</div>
     <p>
       The pedestrian dataset correlates well with the average daily number of parking place users. We can
-      clearly identify major events just by looking at the dataset.
+      clearly identify major events just by looking at the yearly graph. 
     </p>
 
   </div>
