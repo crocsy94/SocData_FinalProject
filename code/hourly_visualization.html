@@ -356,6 +356,8 @@
         data = fullData.filter(item => new Date(parseInt(item.unix_time + '000')).getHours() === hour);
         return updateCircles(data, "hourly-pedestrian");
       };
+
+      animatePedestrian(0);
     });
 
     d3.csv(parkingCsv, function (fullData) {
@@ -435,7 +437,7 @@
           .transition()
           .duration(delay)
           //change fill and stroke opacity to avoid CSS conflicts
-          .attr("fill-opacity", 1)
+          .attr("fill-opacity", 1);
       };
 
       animatePark = (hour) => {
@@ -443,10 +445,11 @@
         return updateCircles(data, "hourly-parking");
       };
 
+      animatePark(0);
+
       loadingElement.style.display = "none";
       visualizationElement.style.display = "inline";
     });
   });
-
 </script>
 </html>
