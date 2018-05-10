@@ -141,9 +141,9 @@
       addAxis(svg, "right_axis", `translate(${w - padding_horizontal}, 0)`, yAxisRight);
 
       // Add labels
-      addText(svg, 10, h / 2 - 10, "Daily average parking", BLACK);
-      addText(svg, 25, h / 2 - 10, "spot usage", BLACK);
-      addText(svg, w - padding_horizontal / 2 + 7, h / 2 - 10, "Pedestrians / hour", ORANGE);
+      addText(svg, 20, h / 2 - 10, "Pedestrians / day", BLACK);
+      addText(svg, w - padding_horizontal / 2 + 15, h / 2 - 10,  "Daily parking" , ORANGE);
+      addText(svg, w - padding_horizontal / 2 + 30, h / 2 - 10,  "spot usage" , ORANGE);
 
       loadingDiv.style.display = "none";
       chartDiv.style.display = "inline";

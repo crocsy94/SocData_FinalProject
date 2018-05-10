@@ -160,10 +160,10 @@
 
 
   const animateTime = () => {
-    isUnderAnimation = true;
     if (currentDay.getTime() >= interval.end.getTime()) {
       currentDay = interval.start;
 
+      document.getElementById("animate-text").removeAttribute('is-under-animation');
       document.getElementById("animate-text").addEventListener("click", function () {
         animateTime();
         this.removeEventListener('click', arguments.callee, false);
@@ -188,7 +188,10 @@
 
   document.getElementById("animate-text").addEventListener("click", function () {
     if (animatePark && animatePedestrian) {
+      isUnderAnimation = true;
+
       animateTime();
+      this.setAttribute('is-under-animation', true);
       this.removeEventListener('click', arguments.callee, false);
     }
   });
@@ -348,6 +351,7 @@
 
       animatePedestrian = (currentDay) => {
         data = fullData.filter(item => {
+
           const time = parseInt(item.unix_time + '000');
           const currentTime = currentDay.getTime();
           return time === currentTime;

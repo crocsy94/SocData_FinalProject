@@ -116,6 +116,7 @@ text {
 #animate-text {
     font-weight: bold;
     color: #cc7200;
+    font-size: 20px;
 }
 
 #animate-text:hover {
@@ -147,4 +148,9 @@ text {
 
 .slider-rect:hover {
     fill: #5a5757;
+}
+
+#animate-text[is-under-animation] {
+    color: #5a5757;
+    cursor: not-allowed;
 }

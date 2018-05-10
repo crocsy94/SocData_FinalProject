@@ -318,35 +318,6 @@
       const min = d3.min(fullData, d => parseInt(d.count));
       colorHPark.domain([max, min]);
 
-      // const legendPadding = 20;
-      //
-      // const yScale = d3.scaleOrdinal()
-      //   .domain(["Occupied", "Empty"])
-      //   .range([0, mapHeight - 2 * legendPadding]);
-      //
-      // const yAxis = d3.axisRight()
-      //   .scale(yScale)
-      //   .ticks(1);
-      //
-      // //Create Y axis
-      // svgParkLegend.append("g")
-      //   .attr("class", "y-axis-hourly")
-      //   .attr("height", mapHeight)
-      //   .attr("transform", "translate(30," + (legendPadding + 1) + ")")
-      //   .call(yAxis);
-      //
-      // svgParkLegend.append("rect")
-      //   .attr("width", 15)
-      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-      //   .attr("transform", "translate(10, " + legendPadding + ")")
-      //   .style("fill", color[0]);
-      //
-      // svgParkLegend.append("rect")
-      //   .attr("width", 15)
-      //   .attr("height", (mapHeight - 2 * legendPadding + 2) / 2)
-      //   .attr("transform", "translate(10, " + (legendPadding + (mapHeight - 2 * legendPadding + 2) / 2) + ")")
-      //   .style("fill", color[1]);
-
       const legendPadding = 20;
 
       const yScale = d3.scaleLinear()
