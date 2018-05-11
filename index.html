@@ -1,12 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
+  <title>Final project</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <script>
+    window.timeData = {
+      start: new Date(2016, 5, 9),
+      end: new Date(2016, 6, 16),
+      name: "Average period"
+    };
+
+    const descriptions = {
+      "Start of year": "The year of 2016 starts quite slowly, at the first few days the traffic is barely noticable in downtown." +
+      " This is mainly because of the previously mentioned fact, that the sensors are located in the CBD, and the first few days of the year" +
+      " are part of the Christmas and NYE holiday. Some odd variation can be seen at the end of January too. The 26th is the Austalia day, which is " +
+      "a national holiday in Australia.",
+      "Easter": "This period in Melbourne is full of small festivals, the whole period is called the Autumn Fest. The Australian and " +
+      " New Zealand Army Corp Day was held also in April.",
+      "Average period": "In the currently selected period, no major event is taking place. Therefore the following" +
+      " visualizations show the average behavior of Melbourne’s population.",
+      "Spring": "The spring period looks almost the same as an average period. The number of parkings occuring in this period is slightly decreasing. " +
+      "Maybe this is due to the weather getting better :) ",
+      "Summer": "This period was very surprising for us. The number of parkings in this period is the highest in the year. " +
+      "At first we expected a lower number both for the pedestrians and for the cars because of the summer holiday getting started. " +
+      "But we also have to mention that this is the Christmas period, people are going for shopping tours, getting presents and probably " +
+      "it is more comfortable if you do it by a car. After the 24th of December there is barely anybody in downtown, which is quite understandable, " +
+      "no one wants to spend Christmas holidays in a business district."
+    };
+
+    window.updateDailyVisualization = (timeData) => {
+      window.timeData = timeData;
+      document.getElementById('daily-visualization').src += '';
+      document.getElementById('period-title').innerText = timeData.name;
+      document.getElementById('period-description').innerText = descriptions[timeData.name];
+    }
+  </script>
 </head>
-
 <body>
-  <iframe id="root" src="./code/index.html" frameborder="0" style="width: 100%; height: 2200px"></iframe>
-</body>
+  <div class="container">
 
+    <div class="title">When does <span class="emphasize">Melbourne</span> go to work?</div>
+    <p>
+      We investigated data from parking sensors and pedestrian counters on the streets to figure out when does the city
+      wake up and go to work. To see our results, play around with the visualizations below.
+    </p>
+    <div class="title">An average day...</div>
+    <iframe id="hourly-visualization" src="./code/hourly_visualization.html" frameborder="0" class="hourly-maps"></iframe>
+
+    <div class="title">Is it different on holidays?</div>
+    <p>
+      To figure out this question, we widened our scope for the year of 2016.
+      The parking dataset contains information about which parking bay was occupied in what time period.
+      We analysed the frequency of people leaving parking places for each day. The chart below displays
+      the average number of parking bay usage for each day as well as the average number of citizens counted
+      by a sensor in downtown. The two dataset correlates well with each other, the numbers are quite low
+      during the weekends for both the parking and pedestrian data. It should be noted that the sensors are
+      mainly located in the Central Business District of Melbourne, where the number of households are barely
+      mentionable and only offices and shopping centers can be found. Some odd patterns can be noticed at
+      the beginning of the year, somewhere around April and at the end of the year. Click on the chart to
+      gain further insight about these periods.
+    </p>
+    <iframe id="year-chart" src="./code/year_chart.html" frameborder="0" class="year_chart"></iframe>
+
+    <div id="period-title" class="title">During a regular, uneventful period...</div>
+    <p id="period-description">
+      In the currently selected period, no major event is taking place. Therefore the following visualizations show
+      the average behaviour of Melbourne’s population.
+    </p>
+    <iframe id="daily-visualization" src="./code/daily_visualization.html" frameborder="0"
+            class="daily_visualization"></iframe>
+
+    <div class="title">Conclusion</div>
+    <p>
+      The pedestrian dataset correlates well with the average daily number of parking place users. We can
+      clearly identify major events just by looking at the yearly graph.
+    </p>
+
+    <div class="title">Links</div>
+
+    <div class="button-container">
+      <button class="link inline">
+        <a target="_blank" href="./code/explainer.html" style="color: #cc7200">
+          Explainer page
+        </a>
+      </button>
+      <button class="link inline">
+        <a target="_blank" href="https://github.com/crocsy94/SocData_FinalProject" style="color: #cc7200">
+          Github Repository
+        </a>
+      </button>
+    </div>
+    
+    <div class="button-container">
+      <button class="link inline">
+        <a target="_blank"
+           href="https://data.melbourne.vic.gov.au/Transport-Movement/On-street-Parking-Bay-Sensors/vh2v-4nfs">
+          Parking sensor positions
+        </a>
+      </button>
+      <button class="link inline">
+        <a target="_blank"
+           href="https://data.melbourne.vic.gov.au/Transport-Movement/On-street-Car-Parking-Sensor-Data-2016/dj7e-rdx9">
+          Parking data
+        </a>
+      </button>
+      <button class="link inline">
+        <a target="_blank"
+           href="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-sensor-locations/ygaw-6rzq">
+          Ped. sensor positions
+        </a>
+      </button>
+      <button class="link inline">
+        <a target="_blank"
+           href="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-volume-updated-monthly-/b2ak-trbp">
+          Pedestrian data
+        </a>
+      </button>
+    </div>
+
+  </div>
+
+</body>
 </html>
